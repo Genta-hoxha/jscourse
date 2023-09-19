@@ -906,7 +906,7 @@ The values are the events themselves, and the keys are the minutes in which each
 
 GOOD LUCK 😀
 */
-
+/*
 const gameEvents = new Map([
   [17, '⚽️ GOAL'],
   [36, '🔁 Substitution'],
@@ -995,7 +995,7 @@ const loginEmail = '  Hello@Jonas.Io \n';
 
 // const lowerEmail = loginEmail.toLowerCase();
 // const trimmedEmail = lowerEmail.trim();
-const normalizedEmail = loginEmail.toLowerCase().trim();
+const normalizedEmail = loginEmail.toLowerCase().trim(); //.trim() heq hapsirat ne fillim te fjalise
 console.log(normalizedEmail);
 console.log(email === normalizedEmail);
 
@@ -1039,8 +1039,146 @@ checkBaggage('Socks and camera'); //output: WELCOME ABOARD!
 checkBaggage('Get some snacks and a gun for protection'); //output: You are NOT allowed on board
 
 ///--- String - PART3---
-console.log('a+very+nice+string'.split('+'));
+//Split and join (metoda)
+console.log('a+very+nice+string'.split('+')); //specifikojme nje string ndares
 console.log('Genta Hoxha'.split(' '));
 const [firstName, lastName] = 'Genta Hoxha'.split(' ');
-const newName = ['Mrs.', firstName, lastName.toUpperCase()].join(' ');
+const newName = ['Mrs.', firstName, lastName.toUpperCase()].join('-'); //OUTPUTI: Mrs.-Genta-HOXHA
 console.log(newName);
+const newName2 = ['Mrs.', firstName, lastName.toUpperCase()].join(' '); //OUTPUTI: Mrs. Genta HOXHA
+console.log(newName2);
+
+//OUTPUT: Jessica Ann Smith Davis
+const capitalizeName = function (name) {
+  const names = name.split(' ');
+  const namesUpper = [];
+
+  for (const n of names) {
+    // namesUpper.push(n[0].toUpperCase() + n.slice(1)); //japin te dyja te njejtin rezultat
+    namesUpper.push(n.replace(n[0], n[0].toUpperCase())); //japin te dyja te njejtin rezultat
+  }
+  console.log(namesUpper.join(' '));
+};
+capitalizeName('jessica ann smith davis');
+
+//PADDING
+const message = 'Go to gate 23!';
+console.log(message.padStart(25, '+')); //Output: +++++++++++Go to gate 23!   (25 eshte gjatesia e karaktereve)
+console.log('Genta'.padStart(23, '+')); //Output: ++++++++++++++++++Genta
+console.log('Genta'.padEnd(10, '+')); //Output: Genta+++++ (10 tregon gjatesine e karaktereve bashke me pluset)
+console.log(message.padStart(25, '+').padEnd(35, '+')); //Output: +++++++++++Go to gate 23!++++++++++
+console.log('Genta'.padStart(10, '*').padEnd(15, '*')); //Output: *****Genta*****
+
+//Example me credt card
+const maskCreditCard = function (number) {
+  const str = number + ''; //deklarojme nje variabel me emrin str
+  const last = str.slice(-4); //ne kete rast kemi te bejme me shfaqen e 4 numrave te fundit
+  return last.padStart(str.length, '*');
+};
+console.log(maskCreditCard(4335452148525585)); //Outputi: ************5585
+
+//REPEAT METHOD
+const message2 = 'Bad weather... All Departues Delayed...';
+console.log(message2.repeat(5)); //Outputi eshte fjalia e perseritur 5 here
+
+const planesInLine = function (n) {
+  console.log(`There are ${n} planes in line ${'✈'.repeat(n)}`);
+};
+planesInLine(2); //Output: There are 2 planes in line ✈✈
+planesInLine(4); //Output: There are 4 planes in line ✈✈✈✈
+planesInLine(7); //output: There are 7 planes in line ✈✈✈✈✈✈✈
+planesInLine(10); //output: There are 10 planes in line ✈✈✈✈✈✈✈✈✈✈
+*/
+// Coding Challenge #4
+
+/* 
+Write a program that receives a list of variable
+names written in underscore_case and convert them to camelCase.
+
+The input will come from a textarea inserted into the
+DOM (see code below), and conversion will happen when the button is pressed.
+
+THIS TEST DATA (pasted to textarea)
+underscore_case
+ first_name
+Some_Variable 
+  calculate_AGE
+delayed_departure
+
+SHOULD PRODUCE THIS OUTPUT (5 separate console.log outputs)
+underscoreCase      ✅
+firstName           ✅✅
+someVariable        ✅✅✅
+calculateAge        ✅✅✅✅
+delayedDeparture    ✅✅✅✅✅
+
+HINT 1: Remember which character defines a new line in the textarea 😉
+HINT 2: The solution only needs to work for a variable made out of 2 words, like a_b
+HINT 3: Start without worrying about the ✅. Tackle that only after you have the variable name conversion working 😉
+HINT 4: This challenge is difficult on purpose, so start watching the solution in case you're stuck. Then pause and continue!
+
+Afterwards, test with your own test data!
+
+GOOD LUCK 😀
+*/
+/*
+document.body.append(document.createElement('textarea'));
+document.body.append(document.createElement('button'));
+
+// document.querySelector('button').addEventListener('click', function () {
+// const text = document.querySelector('textarea').value;
+//   // console.log(text);
+//   const rows = text.split('\n'); //new line
+//   console.log(rows);
+
+//   for (const [i, row] of rows.entries()) {
+//     const [first, second] = row.toLowerCase().trim().split('_');
+//     const output = `${first}${second.replace(
+//       second[0],
+//       second[0].toUpperCase()
+//     )}`;
+//     console.log(`${output.padEnd(20)}${'✅'.repeat(i + 1)}`);
+//   }
+// });
+
+document.querySelector('button').addEventListener('click', function () {
+  const text = document.querySelector('textarea').value;
+  // console.log(text);
+  const rows = text.split('\n');
+  // console.log(rows);
+
+  for (const [i, row] of rows.entries()) {
+    const [first, second] = row.toLowerCase().trim().split('_');
+    const output = `${first}${second.replace(
+      second[0],
+      second[0].toUpperCase()
+    )}`;
+    console.log(`${output.padEnd(20)}${'✅'.repeat(i + 1)}`);
+  }
+});
+
+*/
+
+//String Methods Practice
+const flight =
+  '_Delayed_Departure;fao93766109;txl2133758440;11:25+_Arrival;bru0943384722;fao93766109;11:45+_Delayed_Arrival;hel7439299980;fao93766109;12:05+_Departure;fao93766109;lis2323639855;12:30';
+
+//OUTPUTI:
+// 🔴 Delayed Departure from FAO to TXL (11h25)
+//              Arrival from BRU to FAO (11h45)
+//   🔴 Delayed Arrival from HEL to FAO (12h05)
+//            Departure from FAO to LIS (12h30)
+
+console.log(flight.split('+'));
+
+for (const flig of flight.split('+')) {
+  //console.log(flig);
+  const [type, from, to, time] = flig.split(';');
+  const output = `${type.startsWith('_Delayed') ? '🔴' : ''}${type.replaceAll(
+    '_',
+    ' '
+  )} from ${from.slice(0, 3).toUpperCase()} to ${to
+    .slice(0, 3)
+    .toUpperCase()} (${time.replace(':', 'h')})`.padStart(56);
+  console.log(output);
+}
