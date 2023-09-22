@@ -476,8 +476,8 @@ const calcAverageHumanAge = function (ages) {
   console.log('----PIKA 2 ----');
   console.log(min);
 };
-// calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]);//rasti i pare i te dhenave
-calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]); //rasti i dyte i te dhenave
+calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]); //rasti i pare i te dhenave
+//calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]); //rasti i dyte i te dhenave
 console.log('----PIKA 3 ----');
 // const adult1 = [36, 32, 76, 48, 28]; //rasti i pare i te dhenave
 const adult1 = [80, 40, 56, 36, 40, 32]; //rasti i dyte i te dhenave
