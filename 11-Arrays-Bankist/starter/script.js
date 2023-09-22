@@ -61,8 +61,9 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+//Shfaqja e levizjeve (Depozitimet dhe Terheqjet )
 const displayMovements = function (movements) {
-  containerMovements.innerHTML = ''; //merr te dhenat e htm dhe ben zevendesimin e elementit me insertAdjacentHTML()
+  containerMovements.innerHTML = ''; //merr te dhenat e html dhe ben zevendesimin e elementit me insertAdjacentHTML()
   movements.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
@@ -73,26 +74,27 @@ const displayMovements = function (movements) {
     <div class="movements__date">3 days ago</div>
     <div class="movements__value">${mov}</div>
   </div>`;
-    containerMovements.insertAdjacentHTML('afterbegin', html); //insertAdjacentHTML analizon nje tezt te html dhe me pasfut rezultatin ne nje pozicion  te caktuar, ne kete rast e donim ne poz.afterbegin
+    containerMovements.insertAdjacentHTML('afterbegin', html); //insertAdjacentHTML analizon nje text te html dhe me pas fut rezultatin ne nje pozicion  te caktuar, ne kete rast e donim ne poz.afterbegin
   });
 };
 displayMovements(account1.movements);
 
-const user = 'Steven Thomas Williams'; //stw
-const username = user.toLowerCase().split(' ');
-console.log(username); //output: (3) ['steven', 'thomas', 'williams']
+const calcDisplayBalance = function (movements) {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${balance} EUR`;
+};
+calcDisplayBalance(account1.movements);
 
-//si te nxjerrim si perfundim qe na nevojiten vetem shkronjat e para per user pra stw
-const username1 = user
-  .toLowerCase()
-  .split(' ')
-  // .map(function (name) {
-  //   return name[0];
-  // })
-  // .join('');
-  .map(name => name[0])
-  .join('');
-console.log(username1); //output: (3) ['s', 't', 'w'] dhe nese e bejme .join('') do dali output: stw
+const createUsernames = function (accs) {
+  accs.forEach(function (acc) {
+    acc.username = acc.owner
+      .toLowerCase()
+      .split(' ')
+      .map(name => name[0])
+      .join('');
+  });
+};
+createUsernames(accounts);
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -327,3 +329,160 @@ console.log(movementsUSDArr);
 //output:(8) ['Deposit 1: You deposited 200', 'Deposit 2: You deposited 450', 'Deposit 3: You withdrew 400', 'Deposit 4: You deposited 3000',
 // 'Deposit 5: You withdrew 650', 'Deposit 6: You withdrew 130', 'Deposit 7: You deposited 70', 'Deposit 8: You deposited 1300']
 */
+/*
+////EXAMPLE
+const user = 'Steven Thomas Williams'; //stw
+const username = user.toLowerCase().split(' ');
+console.log(username); //output: (3) ['steven', 'thomas', 'williams']
+
+//si te nxjerrim si perfundim qe na nevojiten vetem shkronjat e para per user pra stw
+const username1 = user
+  .toLowerCase()
+  .split(' ')
+  // .map(function (name) {
+  //   return name[0];
+  // })
+  // .join('');
+  .map(name => name[0])
+  .join('');
+console.log(username1); //output: (3) ['s', 't', 'w'] dhe nese e bejme .join('') do dali output: stw
+
+const createUsername = function (user) {
+  const username = user
+    .toLowerCase()
+    .split(' ')
+    .map(name => name[0])
+    .join('');
+  return username;
+};
+console.log(createUsername('Genta Hoxha')); //output: gh
+
+/*
+///EXAMPLE
+const account6 = {
+  owner: 'Williams Steven Thomas ',
+  movements: [200, -200, -460],
+  interestRate: 0.7,
+  pin: 6666,
+};
+
+const account7 = {
+  owner: 'Steven Williams  Thomas ',
+  movements: [200, -200, -460],
+  interestRate: 0.7,
+  pin: 7777,
+};
+const accountss = [account6, account7];
+
+const createUsers = function (accs) {
+  accs.forEach(function (acc) {
+    acc.username = acc.owner
+      .toLowerCase()
+      .split(' ')
+      .map(name => name[0])
+      .join('');
+  });
+};
+
+createUsers(accountss);
+*/
+/*
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+const deposits = movements.filter(function (mov) {
+  return mov > 0;
+});
+console.log(movements);
+console.log(deposits); //output: vlerat me te medha se 0, pra: (5) [200, 450, 3000, 70, 1300]
+
+const depositsFor = [];
+for (const mov of movements) if (mov > 0) depositsFor.push(mov);
+console.log(depositsFor); //output: vlerat me te medha se 0, pra: (5) [200, 450, 3000, 70, 1300]
+
+//cikli for
+const withdrawals = [];
+for (const mov of movements) if (mov < 0) withdrawals.push(mov);
+console.log(withdrawals);
+
+//me filter
+const withdraw = movements.filter(function (mov) {
+  return mov < 0;
+});
+console.log(withdraw);
+
+//tani do e bejme me arraw
+const withdra = mov => mov < 0;
+console.log(withdraw);
+withdra();
+
+//REDUCE METHOD
+console.log(movements);
+//accumulator -> SNOWBALL
+const balance = movements.reduce(function (acc, cur, i, arr) {
+  //the first parameter is always the current element of array, te e dyta eshte index, i dhe te e treta kemi array
+  console.log(`Iteration ${i}: ${acc}`);
+  // //output:Iteration 0: 0
+  // script.js:403 Iteration 1: 200
+  // script.js:403 Iteration 2: 650
+  // script.js:403 Iteration 3: 250
+  // script.js:403 Iteration 4: 3250
+  // script.js:403 Iteration 5: 2600
+  // script.js:403 Iteration 6: 2470
+  // script.js:403 Iteration 7: 2540
+  return acc + cur;
+}, 0); //reduce ka dhe second parameer i cili eshte 0 e cila eshte initial value (vlera fillestare)of accumulator in the first loop iteration
+console.log(balance); //output: 3840
+
+let balance2 = 0;
+for (const mov of movements) balance2 += mov;
+console.log(balance2);
+
+//OR
+const balance3 = movements.reduce((acc, cur) => acc + cur, 0);
+console.log(balance3); //output: 3840
+
+//maximum  value
+const max = movements.reduce((acc, mov) => {
+  if (acc > mov) return acc;
+  else return mov;
+}, movements[0]);
+console.log(max);
+
+*/
+
+// Coding Challenge #2
+
+/* 
+Let's go back to Julia and Kate's study about dogs. This time, they want to convert dog ages to
+human ages and calculate the average age of the dogs in their study.
+
+Create a function 'calcAverageHumanAge', which accepts an arrays of dog's ages ('ages'), and does the following things in order:
+
+1. Calculate the dog age in human years using the following formula: if the dog is <= 2 years old, humanAge = 2 * dogAge.
+If the dog is > 2 years old, humanAge = 16 + dogAge * 4.
+2. Exclude all dogs that are less than 18 human years old (which is the same as keeping dogs that are at least 18 years old)
+3. Calculate the average human age of all adult dogs (you should already know from other challenges how we calculate averages 😉)
+4. Run the function for both test datasets
+
+TEST DATA 1: [5, 2, 4, 1, 15, 8, 3]
+TEST DATA 2: [16, 6, 10, 5, 6, 1, 4]
+*/
+console.log('----PIKA 1 ----');
+const calcAverageHumanAge = function (ages) {
+  const humanAge = ages.map(age => (age <= 2 ? 2 * age : 16 + age * 4)); //dogAge = age
+  const adult = humanAge.filter(age => age >= 18);
+  const min = humanAge.filter(age => age < 18);
+  console.log(humanAge);
+  console.log(adult);
+  console.log('----PIKA 2 ----');
+  console.log(min);
+};
+// calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]);//rasti i pare i te dhenave
+calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]); //rasti i dyte i te dhenave
+console.log('----PIKA 3 ----');
+// const adult1 = [36, 32, 76, 48, 28]; //rasti i pare i te dhenave
+const adult1 = [80, 40, 56, 36, 40, 32]; //rasti i dyte i te dhenave
+const calcAverageHum = adult1.reduce(function (ad, cur) {
+  // console.log(`${ad}`);
+  return ad + cur;
+}, 0);
+console.log(calcAverageHum / adult1.length);
