@@ -64,6 +64,7 @@ const inputClosePin = document.querySelector('.form__input--pin');
 //Shfaqja e levizjeve (Depozitimet dhe Terheqjet )
 const displayMovements = function (movements) {
   containerMovements.innerHTML = ''; //merr te dhenat e html dhe ben zevendesimin e elementit me insertAdjacentHTML()
+
   movements.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
@@ -77,14 +78,37 @@ const displayMovements = function (movements) {
     containerMovements.insertAdjacentHTML('afterbegin', html); //insertAdjacentHTML analizon nje text te html dhe me pas fut rezultatin ne nje pozicion  te caktuar, ne kete rast e donim ne poz.afterbegin
   });
 };
-displayMovements(account1.movements);
 
-const calcDisplayBalance = function (movements) {
-  const balance = movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${balance} EUR`;
+const calcDisplayBalance = function (acc) {
+  acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${acc.balance} €`;
 };
-calcDisplayBalance(account1.movements);
 
+const calcDisplaySummay = function (acc) {
+  //vendosim si parameser account pra acc pasi kane interesrate te ndryshem
+  const incomes = acc.movements
+    .filter(mov => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumIn.textContent = `${incomes} €`;
+
+  const out = acc.movements
+    .filter(mov => mov < 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumOut.textContent = `${Math.abs(out)} €`;
+
+  const interest = acc.movements
+    .filter(mov => mov > 0)
+    // .map(deposit => (deposit * 1.2) / 100)
+    .map(deposit => (deposit * acc.interestRate) / 100) //dhe ketu vendosim interestRate per secilin
+
+    .filter((int, i, arr) => {
+      // console.log(arr);
+      return int >= 1;
+    })
+    .reduce((acc, int) => acc + int, 0);
+  labelSumInterest.textContent = `${interest} €`;
+};
+// calcDisplaySummay(account1.movements);
 const createUsernames = function (accs) {
   accs.forEach(function (acc) {
     acc.username = acc.owner
@@ -96,6 +120,90 @@ const createUsernames = function (accs) {
 };
 createUsernames(accounts);
 
+const updateUI = function (acc) {
+  // //Display movements
+  displayMovements(acc.movements);
+  // //Display balance
+  calcDisplayBalance(acc);
+  // //Display summary
+  calcDisplaySummay(acc);
+};
+
+///EVENT HANDLER
+let currentAccount;
+btnLogin.addEventListener('click', function (e) {
+  //i jep nje event parameter te quajtur event
+  //Prevent from submitting
+  e.preventDefault(); //e anullon ngjarjen nese eshte e anullueshme, pra veprimi i paracaktuar që i përket ngjarjes nuk do të ndodhë.
+  // console.log('LOGIN'); //sa here klikon te shigjeta e loginit te rritet nr ne console
+
+  currentAccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+  console.log(currentAccount);
+  // currentAccount && currentAccount.pin do jete e njejte me currentAccount?.pin  (optional chaining)
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    //Display UI and welcome message
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = 100;
+    //Clear input fields
+    inputLoginUsername.value = inputLoginPin.value = ''; //pasi logohesh qendron mausei te fusha e pin
+    inputLoginPin.blur(); //ben te mundur heqjen e mausit te pin pas logimit
+
+    // //Update UI
+    updateUI(currentAccount);
+  }
+});
+
+//TRANSFER MONEY
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  const amount = Number(inputTransferAmount.value);
+  const receiverAcc = accounts.find(
+    acc => acc.username === inputTransferTo.value
+  );
+  inputTransferAmount.value = inputTransferTo.value = '';
+
+  if (
+    amount > 0 &&
+    receiverAcc &&
+    currentAccount.balance >= amount &&
+    receiverAcc?.username !== currentAccount.username
+  ) {
+    //Doing the transfer
+    currentAccount.movements.push(-amount);
+    receiverAcc.movements.push(amount);
+
+    //Update UI
+    updateUI(currentAccount);
+  }
+});
+
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    const index = accounts.findIndex(
+      acc => acc.username === currentAccount.username
+    );
+    console.log(index);
+    // .indexOf(23)
+
+    // Delete account
+    accounts.splice(index, 1);
+
+    // Hide UI
+    containerApp.style.opacity = 0;
+  }
+
+  inputCloseUsername.value = inputClosePin.value = '';
+});
+/*
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
@@ -466,6 +574,7 @@ If the dog is > 2 years old, humanAge = 16 + dogAge * 4.
 TEST DATA 1: [5, 2, 4, 1, 15, 8, 3]
 TEST DATA 2: [16, 6, 10, 5, 6, 1, 4]
 */
+/*
 console.log('----PIKA 1 ----');
 const calcAverageHumanAge = function (ages) {
   const humanAge = ages.map(age => (age <= 2 ? 2 * age : 16 + age * 4)); //dogAge = age
@@ -476,8 +585,8 @@ const calcAverageHumanAge = function (ages) {
   console.log('----PIKA 2 ----');
   console.log(min);
 };
-calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]); //rasti i pare i te dhenave
-//calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]); //rasti i dyte i te dhenave
+//calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]); //rasti i pare i te dhenave
+calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]); //rasti i dyte i te dhenave
 console.log('----PIKA 3 ----');
 // const adult1 = [36, 32, 76, 48, 28]; //rasti i pare i te dhenave
 const adult1 = [80, 40, 56, 36, 40, 32]; //rasti i dyte i te dhenave
@@ -486,3 +595,94 @@ const calcAverageHum = adult1.reduce(function (ad, cur) {
   return ad + cur;
 }, 0);
 console.log(calcAverageHum / adult1.length);
+*/
+
+/*
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+const eurToUsd = 1.1;
+console.log(movements);
+//PIPELINE
+const totalDepositsUSD = movements
+  .filter(mov => mov < 0)
+  // .map(mov => mov * eurToUsd)
+  .map((mov, i, arr) => {
+    console.log(arr);
+    return mov * eurToUsd;
+  })
+  .reduce((acc, mov) => acc + mov, 0);
+console.log(totalDepositsUSD);
+*/
+///////////////////////////////////////
+// Coding Challenge #3
+
+/* 
+Rewrite the 'calcAverageHumanAge' function from the previous challenge, but this time as an arrow function, and using chaining!
+
+TEST DATA 1: [5, 2, 4, 1, 15, 8, 3]
+TEST DATA 2: [16, 6, 10, 5, 6, 1, 4]
+
+GOOD LUCK 😀
+*/
+/*
+console.log('----PIKA 1 ----');
+const calcAverageHumanAge = function (ages) {
+  const humanAge = ages.map(age => (age <= 2 ? 2 * age : 16 + age * 4)); //dogAge = age
+  const adult = humanAge.filter(age => age >= 18);
+  const min = humanAge.filter(age => age < 18);
+  console.log(humanAge);
+  console.log(adult);
+  console.log('----PIKA 2 ----');
+  console.log(min);
+};
+//calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]); //rasti i pare i te dhenave
+calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]); //rasti i dyte i te dhenave
+console.log('----PIKA 3 ----');
+// const adult1 = [36, 32, 76, 48, 28]; //rasti i pare i te dhenave
+const adult1 = [80, 40, 56, 36, 40, 32]; //rasti i dyte i te dhenave
+const calcAverageHum = adult1.reduce(function (ad, cur) {
+  // console.log(`${ad}`);
+  return ad + cur;
+}, 0);
+console.log(calcAverageHum / adult1.length);
+*/
+
+//ARRAY FUNCTION
+// const ages = [5, 2, 4, 1, 15, 8, 3];
+// const calcAverageHumanAge = ages.map((age, i) =>
+//   age <= 2 ? 2 * age : 16 + age * 4
+// );
+// console.log(calcAverageHumanAge);
+/*
+const calcAverageHumanAge = ages =>
+  ages
+    .map(age => (age <= 2 ? 2 * age : 16 + age * 4))
+    .filter(age => age >= 18)
+    .reduce((acc, age, i, arr) => acc + age / arr.length, 0);
+const avg1 = calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]);
+const avg2 = calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]);
+console.log(avg1, avg2);
+*/
+
+/////THE FIND METHOD
+/*
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+const firstWithdrawal = movements.find(mov => mov < 0);
+console.log(movements);
+console.log(firstWithdrawal);
+
+console.log(accounts);
+const account = accounts.find(acc => acc.owner === 'Jessica Davis');
+console.log(account);
+*/
+
+////SOME AND EVERY
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+console.log(movements);
+
+//EQUALITY
+console.log(movements.includes(-130)); //output: true
+
+//CONDITION
+console.log(movements.some(mov => mov === -130));
+const anyDeposits = movements.some(mov => mov > 0); //some eshte e barabarte me any
+console.log(anyDeposits);
