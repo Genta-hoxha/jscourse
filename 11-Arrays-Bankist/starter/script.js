@@ -62,10 +62,12 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 //Shfaqja e levizjeve (Depozitimet dhe Terheqjet )
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
   containerMovements.innerHTML = ''; //merr te dhenat e html dhe ben zevendesimin e elementit me insertAdjacentHTML()
 
-  movements.forEach(function (mov, i) {
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+
+  movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
     const html = `  <div class="movements__row">
@@ -181,6 +183,21 @@ btnTransfer.addEventListener('click', function (e) {
   }
 });
 
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+
+  if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
+    // Add movement
+    currentAccount.movements.push(amount);
+
+    // Update UI
+    updateUI(currentAccount);
+  }
+  inputLoanAmount.value = '';
+});
+
 btnClose.addEventListener('click', function (e) {
   e.preventDefault();
 
@@ -202,6 +219,12 @@ btnClose.addEventListener('click', function (e) {
   }
 
   inputCloseUsername.value = inputClosePin.value = '';
+});
+let sorted = false;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
 });
 /*
 /////////////////////////////////////////////////
@@ -674,7 +697,7 @@ console.log(accounts);
 const account = accounts.find(acc => acc.owner === 'Jessica Davis');
 console.log(account);
 */
-
+/*
 ////SOME AND EVERY
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 console.log(movements);
@@ -682,7 +705,290 @@ console.log(movements);
 //EQUALITY
 console.log(movements.includes(-130)); //output: true
 
-//CONDITION
+//SOME: CONDITION
 console.log(movements.some(mov => mov === -130));
 const anyDeposits = movements.some(mov => mov > 0); //some eshte e barabarte me any
 console.log(anyDeposits);
+
+//EVERY CONDITION
+console.log(movements.every(mov => mov > 0));
+console.log(accounts4.movements.every(mov => mov > 0));
+
+//SEPARATE CALLBACK
+const deposit = mov => mov > 0;
+console.log(movements.some(deposit));
+console.log(movements.every(deposit));
+console.log(movements.filter(deposit));
+
+*/
+////FLAT AND FLATMAP
+/*
+const arr = [[1, 2, 3], [4, 5, 6], 7, 8];
+console.log(arr.flat()); //outp[ut: (8) [1, 2, 3, 4, 5, 6, 7, 8]]
+
+const arrDeep = [[[1, 2], 3], [4, [5, 6]], 7, 8, [4, [5, 6]]];
+console.log(arrDeep.flat()); //output; (6) [Array(2) ([1, 2]), 3, 4, Array(2) ([5, 6]), 7, 8]
+
+console.log(arrDeep.flat(2)); //output: (8) [1, 2, 3, 4, 5, 6, 7, 8]
+console.log(arrDeep.flat(2));
+
+// const accountMovements = accounts.map(acc => acc.movements);
+// console.log(accountMovements);
+// console.log(allMovements);
+// const overalBalance = allMovements.reduce((acc, mov) => acc + mov, 0);
+// console.log(overalBalance);
+
+//flat
+const overalBalance = accounts
+  .map(acc => acc.movements)
+  .flat()
+  .reduce((acc, mov) => acc + mov, 0);
+console.log(overalBalance); //output: 17840 pra shuma totale e 4 accounteve
+
+//flatMap
+const overalBalance2 = accounts
+  .flatMap(acc => acc.movements)
+  .reduce((acc, mov) => acc + mov, 0);
+console.log(overalBalance2); //output: 17840 pra shuma totale e 4 accounteve
+
+//SOME: CONDITION
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+console.log(movements.some(mov => mov === -130)); //output: true
+const anyDeposits = movements.some(mov => mov > 0); //some eshte e barabarte me any
+console.log(anyDeposits); //output: true
+
+//EVERY CONDITION
+console.log(movements.every(mov => mov > 0));
+console.log(account4.movements.every(mov => mov > 0));
+
+//FLAT METHOD
+const arr1 = [0, 1, 2, [3, 4]];
+const arr2 = [0, 1, [2, [3, [4, 5]]]];
+console.log(arr1.flat()); //output: (5) [0, 1, 2, 3, 4]
+console.log(arr2.flat(2)); //output: (5) [0, 1, 2, 3, Array(2)]
+console.log(arr2.flat(3)); //output: (6) [0, 1, 2, 3, 4, 5]
+
+//FLATMAP METHOD
+const arr3 = [1, 2, 1];
+const result = arr3.flatMap(num => (num === 2 ? [2, 2] : 1));
+console.log(result);
+
+//SORTING ARRAYS
+//STINGS
+const owners = ['Jonas', 'Zach', 'Fito', 'Nis'];
+console.log(owners.sort()); //output: (4) ['Fito', 'Jonas', 'Nis', 'Zach'] //pra i rendit ne rend alfabetik
+console.log(owners); //output: (4) ['Fito', 'Jonas', 'Nis', 'Zach']
+
+//NUMBERS
+const movement = [200, 450, -400, 3000, -650, -130, -132, -100, -70, 70, 1300];
+console.log(movement); // output: (11) [200, 450, -400, 3000, -650, -130, -132, -100, -70, 70, 1300]
+console.log(movement.sort()); //output: (11) [-100, -130, -132, -400, -650, -70, 1300, 200, 3000, 450, 70]  // ne rend numerik , numrat negativ si fillim pasi e merr- si string
+
+//Si ti rregullojme sort e numrave
+//return < 0, A, B(keep order)
+//return > 0, B, A(switch order)
+//Ascending
+//Menyra 1:
+movement.sort((a, b) => {
+  if (a > b) return 1;
+  // if (b > a) return -1; //e njejta gje
+  if (a < b) return -1;
+});
+console.log(movement); //output: (11) [-650, -400, -132, -130, -100, -70, 70, 200, 450, 1300, 3000] (Nga nr me i vogel tek me i madhi)
+//Menyra 2:
+movement.sort((a, b) => a - b);
+console.log(movement); //output: (11) [-650, -400, -132, -130, -100, -70, 70, 200, 450, 1300, 3000] (Nga nr me i vogel tek me i madhi)
+
+//Descending
+//Menyra 1:
+movement.sort((a, b) => {
+  if (a > b) return -1;
+  if (a < b) return 1;
+});
+console.log(movement); //output: (11) [3000, 1300, 450, 200, 70, -70, -100, -130, -132, -400, -650](Nga nr me i madh tek me i vogli)
+//Menyra 2:
+movement.sort((a, b) => b - a);
+console.log(movement); //output: (11) [3000, 1300, 450, 200, 70, -70, -100, -130, -132, -400, -650](Nga nr me i madh tek me i vogli)
+*/
+/*
+console.log([1, 2, 3, 4, 5, 6, 7]); //output: (7) [1, 2, 3, 4, 5, 6, 7]
+console.log(new Array(1, 2, 3, 4, 5, 6, 7)); //output: (7) [1, 2, 3, 4, 5, 6, 7]
+
+const x = new Array(7);
+console.log(x); //output: (7) [empty × 7]
+
+x.fill(1, 3, 5);
+console.log(x); //output:(7) [empty × 3, 1, 1, empty × 2]
+
+x.fill(1, 3, 5);
+x.fill(1);
+console.log(x); //output:(7) [1, 1, 1, 1, 1, 1, 1]
+
+//Array.from
+const y = Array.from({ length: 7 }, () => 1);
+console.log(y); //output: (7) [1, 1, 1, 1, 1, 1, 1]
+
+const z = Array.from({ length: 7 }, (_, i) => i + 1);
+console.log(z); //output: (7) [1, 2, 3, 4, 5, 6, 7]
+
+const movementsUI = Array.from(document.querySelector('.movements__value'));
+console.log(movementsUI);
+*/
+/*
+
+////////// Example 1 /////////
+
+const bankDepositSum = accounts
+  .flatMap(acc => acc.movements) //(29) [200, 450, -400, 3000, -650, -130, 70, 1300, 5000, 3400, -150, -790, -3210, -1000, 8500, -30, 200, -200, 340, -300, -20, 50, 400, -460, 430, 1000, 700, 50, 90]
+  .filter(mov => mov > 0) //(17) [200, 450, 3000, 70, 1300, 5000, 3400, 8500, 200, 340, 50, 400, 430, 1000, 700, 50, 90]
+  .reduce((sum, cur) => sum + cur, 0); //25180
+console.log(bankDepositSum);
+
+//  ne example 1 kemi  metoden map dhe flat te dyja bashke cka ben te mundur krijimin e nje array te re me te gjitha te dhenat e 4 accounbteve qe kishim ne kete rast
+
+//////////// Example 2 ////////////////
+const bankDeposit1000 = accounts
+  .flatMap(acc => acc.movements)
+  .reduce((count, cur) => (cur >= 1000 ? count + 1 : count), 0);
+console.log(accounts.flatMap(acc => acc.movements)); //output: (29) [200, 450, -400, 3000, -650, -130, 70, 1300, 5000, 3400, -150, -790, -3210, -1000, 8500, -30, 200, -200, 340, -300, -20, 50, 400, -460, 430, 1000, 700, 50, 90]
+console.log(bankDeposit1000); //output: 6
+
+let a = 10;
+console.log(a); //output: 10
+console.log(a++); //output: 10
+console.log(++a); //output: 11
+console.log(a); //output: 11
+
+//////////// Example 3 ////////////////
+//Rasti 1
+// const sums = accounts
+//Rasti 2
+const { deposits, withdrawals } = accounts
+  .flatMap(acc => acc.movements)
+  .reduce(
+    (sums, cur) => {
+      //Rasti 1
+      // cur > 0 ? (sums.deposits += cur) : (sums.withdrawals += cur);
+      //Rasti 2
+      sums[cur > 0 ? 'deposits' : 'withdrawals'] += cur;
+      return sums;
+    },
+    { deposits: 0, withdrawals: 0 }
+  );
+//Rasti 1
+// console.log(sums); //output: {deposits: 25180, withdrawals: -7340}
+//Rasti 2
+console.log(deposits, withdrawals); //output:25180 -7340
+*/
+///////EXAMPLE 4///////
+//this is a nice title => This Is a Nice Title
+// const convert = console.log('this is a nice title');
+// const convert = 'this is a nice title';
+/*
+const convertTitle = function (convert) {
+  const capitzalize = str => str[0].toUpperCase() + str.slice(1);
+
+
+  const exceptions = ['a', 'an', 'and', 'the'];
+  const convert1 = convert
+    .toLowerCase()
+    .split(' ')
+    .map(name => (exceptions.includes(name) ? name : capitzalize(name)))
+    .join(' ');
+
+  return capitzalize(convert1);
+};
+console.log(convertTitle('this is a nice title'));
+*/
+// Coding Challenge #4
+
+/* 
+Julia and Kate are still studying dogs, and this time they are studying if dogs are eating too much or too little.
+Eating too much means the dog's current food portion is larger than the recommended portion, and eating too little is the opposite.
+Eating an okay amount means the dog's current food portion is within a range 10% above and 10% below the recommended portion (see hint).
+
+1. Loop over the array containing dog objects, and for each dog, calculate the recommended food portion and add it to the object as a new property. 
+Do NOT create a new array, simply loop over the array. Forumla: recommendedFood = weight ** 0.75 * 28. (The result is in grams of food, and the weight needs to be in kg)
+2. Find Sarah's dog and log to the console whether it's eating too much or too little. HINT: Some dogs have multiple owners, 
+so you first need to find Sarah in the owners array, and so this one is a bit tricky (on purpose) 🤓
+3. Create an array containing all owners of dogs who eat too much ('ownersEatTooMuch') and an array with all owners of dogs who eat too little ('ownersEatTooLittle').
+4. Log a string to the console for each array created in 3., like this: "Matilda and Alice and Bob's dogs eat too much!" and "Sarah and John and Michael's dogs eat too little!"
+5. Log to the console whether there is any dog eating EXACTLY the amount of food that is recommended (just true or false)
+6. Log to the console whether there is any dog eating an OKAY amount of food (just true or false)
+7. Create an array containing the dogs that are eating an OKAY amount of food (try to reuse the condition used in 6.)
+8. Create a shallow copy of the dogs array and sort it by recommended food portion in an ascending order (keep in mind that the portions are inside the array's objects)
+
+HINT 1: Use many different tools to solve these challenges, you can use the summary lecture to choose between them 😉
+HINT 2: Being within a range 10% above and below the recommended portion means: current > (recommended * 0.90) && current < (recommended * 1.10). Basically, the current portion should be between 90% and 110% of the recommended portion.
+
+TEST DATA:
+GOOD LUCK 😀
+*/
+const dogs = [
+  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
+  { weight: 8, curFood: 200, owners: ['Matilda'] },
+  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
+  { weight: 32, curFood: 340, owners: ['Michael'] },
+];
+
+const dog1 = [{ weight: 22, curFood: 250, owners: ['Alice', 'Bob'] }];
+
+console.log('----Pika 1----');
+console.log(dogs);
+dogs.forEach(dog => (dog.recommendedFood = Math.trunc(dog.weight * 0.75 * 28)));
+
+console.log('----Pika 2----');
+// const ownersDog = dogs.map((dog, i) => dog.owners);
+// console.log(ownersDog);
+const sarahDog = dogs.find(dog => dog.owners.includes('Sarah'));
+console.log(sarahDog);
+console.log(
+  `Dog of Sarah is eating ${
+    sarahDog.curFood > sarahDog.recommendedFood ? 'too much' : 'too little'
+  }`
+);
+console.log('----Pika 3----');
+const ownersEatTooMuch = dogs
+  .filter(dogs => dogs.curFood > dogs.recommendedFood)
+  .flatMap(dogs => dogs.owners)
+  .flat();
+console.log(ownersEatTooMuch);
+
+const ownersEatTooLittle = dogs
+  .filter(dogs => dogs.curFood < dogs.recommendedFood)
+  .flatMap(dogs => dogs.owners)
+  .flat();
+console.log(ownersEatTooLittle);
+
+console.log('----Pika 4----');
+console.log(
+  `${ownersEatTooMuch[0]} and ${ownersEatTooMuch[1]} and ${ownersEatTooMuch[2]}'s dogs eat too much!`
+);
+// console.log(`${ownersEatTooMuch.join(' and')}'s dogs eat too much!`);
+console.log(
+  `${ownersEatTooLittle[0]} and ${ownersEatTooLittle[1]} and ${ownersEatTooLittle[2]}'s dogs eat too little!`
+);
+
+console.log('----Pika 5----'); //me metoden find
+const exactly = dogs.some(dogs => (dogs.curFood = dogs.recommendedFood));
+console.log(exactly);
+
+console.log('----Pika 6----'); // metoda some, pra nese ka ndonje qen qe ha ne norme
+const okay = dogs.some(dogs => (dogs.curFood = dogs.recommendedFood));
+console.log(okay);
+
+console.log('----Pika 7----');
+const okayArr = dogs.find(dogs => (dogs.curFood = dogs.recommendedFood));
+console.log(okayArr);
+
+console.log('----Pika 8----');
+const dogsSort = [
+  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
+  { weight: 8, curFood: 200, owners: ['Matilda'] },
+  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
+  { weight: 32, curFood: 340, owners: ['Michael'] },
+];
+const a = dogsSort.curFood;
+const b = dogsSort.recommendedFood;
+const dogsSorted = dogsSort.sort((a, b) => a - b);
+console.log(dogsSorted);
