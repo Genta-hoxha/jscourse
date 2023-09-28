@@ -80,7 +80,7 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 /////////////////////////////////////////////////
 // Functions
-const formatMovementDate = function (date) {
+const formatMovementDate = function (date, locale) {
   const calcDaysPassed = (date1, date2) =>
     Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
 
@@ -90,12 +90,13 @@ const formatMovementDate = function (date) {
   if (daysPassed === 0) return 'Today';
   if (daysPassed === 1) return 'Yesterday';
   if (daysPassed <= 7) return `${daysPassed} days ago`;
-  else {
-    const day = `${date.getDate()}`.padStart(2, 0);
-    const month = ` ${date.getMonth() + 1}`.padStart(2, 0);
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  }
+  // else {
+  //   const day = `${date.getDate()}`.padStart(2, 0);
+  //   const month = ` ${date.getMonth() + 1}`.padStart(2, 0);
+  //   const year = date.getFullYear();
+  //   return `${day}/${month}/${year}`;
+  // }
+  return new Intl.DateTimeFormat(locale).format(date);
 };
 const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = '';
@@ -113,7 +114,7 @@ const displayMovements = function (acc, sort = false) {
     // const year = date.getFullYear();
 
     const date = new Date(acc.movementsDates[i]);
-    const displayDate = formatMovementDate(date);
+    const displayDate = formatMovementDate(date, acc.locale);
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${type}">${
@@ -177,7 +178,50 @@ const updateUI = function (acc) {
   calcDisplaySummary(acc);
 };
 
+const startLogOutTimer = function () {
+  const tick = function () {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+
+    //In each call, print the remaining time to UI
+    labelTimer.textContent = `${min}:${sec}`;
+
+    //When time is 0 seconds, stop timer and logout user
+    if (time === 0) {
+      clearInterval(timer);
+      labelWelcome.textContent = 'Log in to get started';
+      containerApp.style.opacity = 0;
+    }
+    //Decrese 1s
+    time--;
+  };
+
+  //Set time to 5 minutes
+  let time = 300;
+
+  //Call the timer every second
+  tick();
+  const timer = setInterval(tick, 1000);
+  return timer;
+};
+
+//dhe tani do e therrasim funksionin startLogOutTimer te logini
+
 ///////////////////////////////////////
+/// Experimenting API
+const now = new Date();
+const options = {
+  hour: 'numeric',
+  minute: 'numeric',
+  day: 'numeric',
+  month: 'long', //'2-digit'
+  year: 'numeric',
+  weekday: 'long',
+};
+// const locale = navigator.language;
+// console.log(locale);
+
+labelDate.textContent = new Intl.DateTimeFormat('en-US', options).format(now);
 // Event handlers
 let currentAccount;
 
@@ -198,6 +242,7 @@ btnLogin.addEventListener('click', function (e) {
     containerApp.style.opacity = 100;
 
     //Create current date and time (pra vendos daten aktuale)
+    /*
     const now = new Date();
     const day = `${now.getDate()}`.padStart(2, 0);
     const month = ` ${now.getMonth() + 1}`.padStart(2, 0);
@@ -205,10 +250,14 @@ btnLogin.addEventListener('click', function (e) {
     const hour = now.getHours();
     const min = now.getMinutes();
     labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
+*/
 
     // Clear input fields
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
+
+    //thirrja ktu
+    startLogOutTimer();
 
     // Update UI
     updateUI(currentAccount);
@@ -236,8 +285,13 @@ btnTransfer.addEventListener('click', function (e) {
     //Add transfer date
     currentAccount.movementsDates.push(new Date().toISOString());
     receiverAcc.movementsDates.push(new Date().toISOString());
+
     // Update UI
     updateUI(currentAccount);
+
+    //Reset timer
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
 });
 
@@ -247,14 +301,20 @@ btnLoan.addEventListener('click', function (e) {
   const amount = Number(inputLoanAmount.value);
 
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
-    // Add movement
-    currentAccount.movements.push(amount);
+    setTimeout(function () {
+      // Add movement
+      currentAccount.movements.push(amount);
 
-    //Add loan date
-    currentAccount.movementsDates.push(new Date().toISOString());
+      //Add loan date
+      currentAccount.movementsDates.push(new Date().toISOString());
 
-    // Update UI
-    updateUI(currentAccount);
+      // Update UI
+      updateUI(currentAccount);
+
+      //Reset timer
+      clearInterval(timer);
+      timer = startLogOutTimer();
+    }, 2500);
   }
   inputLoanAmount.value = '';
 });
@@ -464,3 +524,23 @@ console.log(days1); //output: -10 (days) nese do e bejme te funksioni Math.abs a
 //     return `${day}/${month}/${year}`;
 //   }
 // };
+/*
+//ORDER PIZZA
+//setTimeout(() => console.log('Here is your pizza'), 3000)//pra afishohet fjalia pas 3 sekondash ne console
+const ingredients = ['olives', 'spinach'];
+const pizzaTimer = setTimeout(
+  (ing1, ing2) => console.log(`Here is your pizza with ${ing1} and ${ing2}`),
+  3000,
+  ...ingredients
+);
+console.log('Waiting...');
+if (ingredients.includes('spinach')) clearTimeout(pizzaTimer);
+*/
+/*
+// TE kthen ne output cdo 10 sekonda oren dhe daten aktuale
+//Thu Sep 28 2023 10:29:46 GMT+0200 (Central European Summer Time)
+setInterval(function () {
+  const now = new Date();
+  console.log(now);
+}, 10000);
+*/
