@@ -387,13 +387,13 @@ TEST DATA 1: Julia's data [3, 5, 2, 12, 7], Kate's data [4, 1, 15, 8, 3]
 TEST DATA 2: Julia's data [9, 16, 6, 8, 3], Kate's data [10, 5, 6, 1, 4]
 
 GOOD LUCK 😀*/
-/*
+
 console.log('----PIKA 1----');
 
 const checkDogs = function (dogsJulia, dogsKate) {
   console.log(`Julia's data: ${dogsJulia}, Kate's data: ${dogsKate}`);
   // console.log(`${dogsJulia.slice(1, 3)}`);
-  dogsJulia.slice(1, 3);
+  console.log(dogsJulia.slice(1, -2));
 
   console.log('----PIKA 2----');
 
@@ -402,6 +402,8 @@ const checkDogs = function (dogsJulia, dogsKate) {
   // const finalDogs = console.log(newDogsJulia, dogsKate); //array me dogs e update
 
   const finalDogs = newDogsJulia.concat(dogsKate); //array me dogs e update
+  //ose
+  // const finalDogs = [...newDogsJulia, ...dogsKate];
   console.log(finalDogs);
   console.log('----PIKA 3----');
   /// CIKLI FOR
@@ -426,7 +428,6 @@ const checkDogs = function (dogsJulia, dogsKate) {
 checkDogs([3, 5, 2, 12, 7], [4, 1, 15, 8, 3]);
 //checkDogs([9, 16, 6, 8, 3], [10, 5, 6, 1, 4]);
 
-*/
 ////////////////////////// DATA TRANSFORMATIONS: MAP, FILTER, REDUCE //////////////////////////
 ///// MAP
 /*
