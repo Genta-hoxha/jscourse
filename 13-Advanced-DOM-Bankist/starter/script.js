@@ -6,6 +6,10 @@ const btnsOpenModal = document.querySelectorAll('.btn--show-modal');
 
 const btnScrollTo = document.querySelector('.btn--scroll-to');
 const section1 = document.querySelector('#section--1');
+const nav = document.querySelector('.nav');
+const tabs = document.querySelectorAll('.operations__tab');
+const tabsContainer = document.querySelector('.operations__tab-container');
+const tabsContent = document.querySelectorAll('.operations__content');
 
 const openModal = function (e) {
   e.preventDefault();
@@ -57,22 +61,170 @@ document.querySelector('.nav__links').addEventListener('click', function (e) {
   }
 });
 
-///DOM Traversing
+/////////////////////////////////// TABBED COMPONENT ///////////////////////////////////
+/* const tabs = document.querySelectorAll('.operations__tab');
+const tabsContainer = document.querySelector('.operations__tab-container');
+const tabsContent = document.querySelectorAll('.operations__content'); */
+
+//tabs.forEach(t => t.addEventListener('click', () => console.log('TAB'))); //nese do kishim 200 copies ateher do u ngadalesonte faqa me kete lloje menyre, dhe ne kete rast na vjen ne ndihme event delegation
+/*
+//// EVENT DELEGATION ////
+// ~ ku need to attach evend handler ne elementin prind te perbashket nga te gjithe elementet qe ne jemi te interesuar.
+// ~ ne rastin tone kemi 3 butona, dhe nje parent te perbashket e cila teshte tab-container
+//RASTI 1
+tabsContainer.addEventListener('click', function (e) {
+  const clicked = e.target;
+  console.log(clicked);
+});
+//OUTPUTI KUR KLIKOJME SECILIN BUTON:
+//<button class="btn operations__tab operations__tab--1 operations__tab--active" data-tab="1">…</button>
+//<button class="btn operations__tab operations__tab--2" data-tab="2">…</button>
+//<button class="btn operations__tab operations__tab--3" data-tab="3">…</button>
+
+//RASTI 2
+tabsContainer.addEventListener('click', function (e) {
+  const clicked = e.target.parentElement;
+  console.log(clicked);
+});
+//OUTPUTI KUR KLIKOJME SECILIN BUTON:
+//<div class="operations__tab-container">…</div>flex
+//<div class="operations__tab-container">…</div>flex
+//<div class="operations__tab-container">…</div>flex
+*/
+//RASTI 3 shfaq rezultatin si rasti 1 por do e shpejtoje aplikacionin
+tabsContainer.addEventListener('click', function (e) {
+  const clicked = e.target.closest('.operations__tab');
+  console.log(clicked);
+
+  //Guard clause
+  if (!clicked) return;
+
+  // Remove active classes
+  tabs.forEach(t => t.classList.remove('operations__tab--active'));
+  clicked.classList.add('operations__tab--active');
+  tabsContent.forEach(c => c.classList.remove('operations__content--active'));
+
+  //Active Tab
+  clicked.classList.add('operations__tab--active');
+  //Active content area
+  console.log(clicked.dataset.tab);
+  document
+    .querySelector(`.operations__content--${clicked.dataset.tab}`)
+    .classList.add('operations__content--active');
+});
+
+//// MENU FADE ANIMATION ////
+// QE TE MOS BEJME SHUME PERSERITJE DO BEJME REFACTOR CODE
+//Ku behet duke krijuar nje funksion te ri dhe me pas te dy funsionet me poshgrte do krahasojme cfare kane te perbashket dhe cfare kane ndryshe
+const handleHover = function (e, opacity) {
+  // console.log(this, e.currentTarget);
+  if (e.target.classList.contains('nav__link')) {
+    const link = e.target; //parent of nav__link eshte nav__item
+    const siblings = link.closest('.nav').querySelectorAll('.nav__link');
+    const logo = link.closest('.nav').querySelector('img');
+
+    siblings.forEach(el => {
+      if (el !== link) el.style.opacity = this;
+    });
+    logo.style.opacity = this;
+  }
+};
+
+// Passing "argument" into handler
+nav.addEventListener('mouseover', handleHover.bind(0.5));
+nav.addEventListener('mouseout', handleHover.bind(1));
+//ky funksioni me poshte eshte nje parameter
+/* function (e) {
+  handleHover(e, 1);
+}*/
+/*
+//DO PERDORIM DY FUNKSIONE: - MOUSEOVER -  E PARA ESHTE KUR I BEN FADE DHE THEKSON NJEREN
+nav.addEventListener('mouseover', function (e) {
+  if (e.target.classList.contains('nav__link')) {
+    const link = e.target; //parent of nav__link eshte nav__item
+    const siblings = link.closest('.nav').querySelectorAll('.nav__link');
+    const logo = link.closest('.nav').querySelector('img');
+
+    siblings.forEach(el => {
+      if (el !== link) el.style.opacity = 0.5;
+    });
+    logo.style.opacity = 0.5;
+  }
+});
+
+// - MOUSEOUT -  DHE TE TJETREN KUR E HEQ MAUSIN NGA NJERA PJESA TJETER TE BEHET SERISH ME NGJYRE SIC ISHTE
+nav.addEventListener('mouseout', function (e) {
+  if (e.target.classList.contains('nav__link')) {
+    const link = e.target; //parent of nav__link eshte nav__item
+    const siblings = link.closest('.nav').querySelectorAll('.nav__link');
+    const logo = link.closest('.nav').querySelector('img');
+
+    siblings.forEach(el => {
+      if (el !== link) el.style.opacity = 1;
+    });
+    logo.style.opacity = 1;
+  }
+});
+
+*/
+
+/////////////////////////////////// STICKY NAVIGATION ///////////////////////////////////
+/*
+const initialCoords = section1.getBoundingClientRect();
+console.log(initialCoords);
+window.addEventListener('scroll', function () {
+  console.log(window.scrollY);
+  if (this.window.scrollY > initialCoords.top) nav.classList.add('sticky');
+  else nav.classList.remove('sticky');
+});
+*/
+
+/////////////////////////////////// STICKY NAVIGATION, A BETTER WAY: THE INTERSECTION OBSERVER API ///////////////////////////////////
+// To use the intersection observer API, we need to start  by creating a new intersection observer si meposhte:
+//this callback function will get called each time that the observed element
+const obsCallback = function (entries, observer) {
+  entries.forEach(entry => {
+    console.log(entry);
+  });
+};
+
+/*
+  NOTES: this object need first root property and this root is the element that the target is intersecting so our targetr element here, is intersecting the root element at the threshold that we defined
+  Ne kete shembull aktual, kudoqofte the first section(pra targeti yne section1) is intersecting the viewport at 10%, so the viewport, sepse eshte root dhe 10% sepse eshte threshold
+ Pra, kurdo qe te ndodhe. ky funksioni ketu  obsCallback do te thirret dhe nuk ka rendesi nese ne jemi duke bere scrolling UP or DOWN.
+  Kete funksion ne do ta thirrim me 2 argumente : entries, observer dhe objekti me poshte me const observer do te kaloje ne callback function.
+  Tani ne kete rast ne jemi te interesuar vetem ne hyrjet(entries), por ndonjehere duke perdorur the observer eshte gjithashtu i dobishem.
+  Tani ne aktualisht kemi multiple thresholds, ku ketu ne mund te kemi nje array dhe do e bejme tani, keshtu qe entries si parametri i pare jane aktualisht nje array of the threshold 
+  entries, keshtu ne kete rast perseri eshte vetem nje element ketu, por do krijojme nje funksion me te pergjithshem ku loops mbi keto entries
+  
+  */
+
+const obsOptions = {
+  root: null,
+  threshold: [0, 0.2], //threshold = 10%
+};
+
+const observer = new IntersectionObserver(obsCallback, obsOptions);
+observer.observe(section1);
+
+//OUTPUTI KUR KLIKOJME SECILIN BUTON:
+/*
+/////////////////////////////////// DOM TRANSVERSING ///////////////////////////////////
 const h1 = document.querySelector('h1');
 const h4 = document.querySelector('h4');
 //Going downwards: child
 console.log(h1.querySelectorAll('.highlight'));
 console.log(h1.childNodes); //ben te mundur qe brenda h1 te listoje cdo element : [text, comment, text, span.highlight, text, br, text, span.highlight, text]
 console.log(h1.children); // ben te mundur qe te listoje brenda h1 vetem html collection: [span.highlight, br, span.highlight]
-h1.firstElementChild.style.color = 'yellow';
+h1.firstElementChild.style.color = 'white';
 h1.lastElementChild.style.color = 'orangered';
 
 //Going upwards: parents
 console.log(h1.parentNode);
 console.log(h1.parentElement);
 
-h1.closest('.header').style.background = 'var(--gradient-primary)'; //backgroundi vetem per section of header merr ngjyre
-h1.closest('h1').style.background = 'var(--gradient-secondary)'; //ngjyrosim vetem backgrounfi i h1
+// h1.closest('.header').style.background = 'var(--gradient-primary)'; //backgroundi vetem per section of header merr ngjyre
+// h1.closest('h1').style.background = 'var(--gradient-secondary)'; //ngjyrosim vetem backgrounfi i h1
 
 //Going sideways: siblings
 console.log(h1.previousElementSibling); //null sepse nuk ka element para h1
@@ -86,8 +238,8 @@ console.log(h1.parentElement.children); // output: HTMLCollection(4) [h1, h4, b
 // [...h1.parentElement.children].forEach(function (el) {
 //   if (el !== h1) el.style.transform = 'scale(0.5)'; //te zvogelon elementet e tjera qe jane pjese e h , por vetem h1 nuk ndryshon
 // });
-
-///// Page Navigation ////
+*/
+/////////////////////////////////// PAGE NAVIGATION ///////////////////////////////////
 // document.querySelectorAll('.nav__link').forEach(function (el) {
 //   el.addEventListener('click', function (e) {
 //     e.preventDefault();
@@ -147,7 +299,7 @@ document.addEventListener('keydown', function (e) {
 
 */
 /*
-//// SELECTING ELEMENTS ////
+/////////////////////////////////// SELECTING ELEMENTS ///////////////////////////////////
 
 console.log(document.documentElement);
 console.log(document.head);
@@ -165,7 +317,7 @@ console.log(allButtons);
 
 console.log(document.getElementsByClassName('btn'));
 
-//// CREATING AND INSERTING ELEMENTS ////
+/////////////////////////////////// CREATING AND INSERTING ELEMENTS ///////////////////////////////////
 const message = document.createElement('div');
 message.classList.add('cookie-message');
 message.textContent = 'We use cookied to improved functionality and analytics';
@@ -196,7 +348,7 @@ document
     message.parentElement.removeChild(message);
   });
 
-//// STYLES ////
+/////////////////////////////////// STYLES ///////////////////////////////////
 // message.style.backgroundColor = 'red'; //'#37383d'
 message.style.width = '120%';
 console.log(message.style.height);
@@ -209,7 +361,7 @@ message.style.height =
 
 // document.documentElement.style.setProperty('--color-primary', 'orangered'); // ku te gjithe butonat primare u bene nga ngjyra jeshile ne ngjyre portokalli
 
-//// ATTRIBUTES ////
+/////////////////////////////////// ATTRIBUTES ///////////////////////////////////
 
 const logo = document.querySelector('.nav__logo');
 console.log(logo.alt); //output: Bankist logo
@@ -231,7 +383,7 @@ console.log(link.getAttribute('href')); //output: #
 //// Data Attributes ////
 console.log(logo.dataset.versionNumber); //output: 3.0
 
-//// CLASSES
+/////////////////////////////////// CLASSES ///////////////////////////////////
 logo.classList.add('c', 'j');
 logo.classList.remove('c', 'j');
 logo.classList.toggle('c');
@@ -261,7 +413,8 @@ btnScrollTo.addEventListener('click', function (e) {
     document.documentElement.clientWidth
   ); //Output: height/width viewport 327 1519
 */
-//SCROOLLING
+
+/////////////////////////////////// SCROOLLING ///////////////////////////////////
 ////// Menyra 1
 /*
   // window.scrollTo(s1coords); kur klikojme butonin , te dergon te section1 por jo ne pozicion te sakte
@@ -284,7 +437,7 @@ btnScrollTo.addEventListener('click', function (e) {
 //   section1.scrollIntoView({ behavior: 'smooth' }); //pra marrim elementin qe duam te bejme scroll e cila eshte section1 dhe me pas ne e thirrim me scrollIntoView dhe me pas e kalojme ne nje objekt dhe specifikojme serish me  behavior: 'smooth'
 // });
 
-/////TYPES OF EVENTS  AND EVEND HANDLERS //////
+/////////////////////////////////// TYPES OF EVENTS  AND EVEND HANDLERS ///////////////////////////////////
 /*
  const h1 = document.querySelector('h1');
 h1.addEventListener('mouseenter', function (e) {
@@ -315,7 +468,7 @@ setTimeout(() => h1.removeEventListener('mouseenter', alertH1), 3000);
 */
 
 /*
-///// NDRYSHIM NGHYRASH TE NAV BAR RANDOM /////
+/////////////////////////////////// NDRYSHIM NGHYRASH TE NAV BAR RANDOM ///////////////////////////////////
 //rgb(255, 255, 255)
 const randomInt = (min, max) =>
   Math.floor(Math.random() * (max - min + 1) + min);
