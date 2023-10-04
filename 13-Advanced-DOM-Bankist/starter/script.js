@@ -59,13 +59,34 @@ document.querySelector('.nav__links').addEventListener('click', function (e) {
 
 ///DOM Traversing
 const h1 = document.querySelector('h1');
-
+const h4 = document.querySelector('h4');
 //Going downwards: child
 console.log(h1.querySelectorAll('.highlight'));
-console.log(h1.childNodes);
-console.log(h1.children);
-h1.firstElementChild.computedStyleMap.color = 'white';
-h1.lastElementChild.computedStyleMap.color = 'orangered';
+console.log(h1.childNodes); //ben te mundur qe brenda h1 te listoje cdo element : [text, comment, text, span.highlight, text, br, text, span.highlight, text]
+console.log(h1.children); // ben te mundur qe te listoje brenda h1 vetem html collection: [span.highlight, br, span.highlight]
+h1.firstElementChild.style.color = 'yellow';
+h1.lastElementChild.style.color = 'orangered';
+
+//Going upwards: parents
+console.log(h1.parentNode);
+console.log(h1.parentElement);
+
+h1.closest('.header').style.background = 'var(--gradient-primary)'; //backgroundi vetem per section of header merr ngjyre
+h1.closest('h1').style.background = 'var(--gradient-secondary)'; //ngjyrosim vetem backgrounfi i h1
+
+//Going sideways: siblings
+console.log(h1.previousElementSibling); //null sepse nuk ka element para h1
+// console.log(h4.previousElementSibling); // h1 <h1 style="background: var(--gradient-secondary);">…</h1>
+console.log(h1.nextElementSibling); //h4 sepse pas h1 kemi h4 <h4>A simpler banking experience for a simpler life.</h4>
+
+console.log(h1.previousSibling); //#text
+console.log(h1.nextSibling); //#text
+
+console.log(h1.parentElement.children); // output: HTMLCollection(4) [h1, h4, button.btn--text.btn--scroll-to, img.header__img]
+// [...h1.parentElement.children].forEach(function (el) {
+//   if (el !== h1) el.style.transform = 'scale(0.5)'; //te zvogelon elementet e tjera qe jane pjese e h , por vetem h1 nuk ndryshon
+// });
+
 ///// Page Navigation ////
 // document.querySelectorAll('.nav__link').forEach(function (el) {
 //   el.addEventListener('click', function (e) {
