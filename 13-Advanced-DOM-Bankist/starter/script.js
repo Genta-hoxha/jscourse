@@ -182,30 +182,164 @@ window.addEventListener('scroll', function () {
 /////////////////////////////////// STICKY NAVIGATION, A BETTER WAY: THE INTERSECTION OBSERVER API ///////////////////////////////////
 // To use the intersection observer API, we need to start  by creating a new intersection observer si meposhte:
 //this callback function will get called each time that the observed element
-const obsCallback = function (entries, observer) {
-  entries.forEach(entry => {
-    console.log(entry);
-  });
-};
+// const obsCallback = function (entries, observer) {
+//   entries.forEach(entry => {
+//     console.log(entry);
+//   });
+// };
+// const obsOptions = {
+//   root: null,
+//   threshold: [0, 0.2], //threshold = 10%
+// };
 
-/*
-  NOTES: this object need first root property and this root is the element that the target is intersecting so our targetr element here, is intersecting the root element at the threshold that we defined
+// const observer = new IntersectionObserver(obsCallback, obsOptions);
+// observer.observe(section1);
+/*NOTES: this object need first root property and this root is the element that the target is intersecting so our targetr element here, is intersecting the root element at the threshold that we defined
   Ne kete shembull aktual, kudoqofte the first section(pra targeti yne section1) is intersecting the viewport at 10%, so the viewport, sepse eshte root dhe 10% sepse eshte threshold
  Pra, kurdo qe te ndodhe. ky funksioni ketu  obsCallback do te thirret dhe nuk ka rendesi nese ne jemi duke bere scrolling UP or DOWN.
   Kete funksion ne do ta thirrim me 2 argumente : entries, observer dhe objekti me poshte me const observer do te kaloje ne callback function.
   Tani ne kete rast ne jemi te interesuar vetem ne hyrjet(entries), por ndonjehere duke perdorur the observer eshte gjithashtu i dobishem.
   Tani ne aktualisht kemi multiple thresholds, ku ketu ne mund te kemi nje array dhe do e bejme tani, keshtu qe entries si parametri i pare jane aktualisht nje array of the threshold 
   entries, keshtu ne kete rast perseri eshte vetem nje element ketu, por do krijojme nje funksion me te pergjithshem ku loops mbi keto entries
-  
   */
 
-const obsOptions = {
-  root: null,
-  threshold: [0, 0.2], //threshold = 10%
+const header = document.querySelector('.header'); //kjo eshte nje element me klasen e header
+const navHeight = nav.getBoundingClientRect().height;
+// console.log(navHeight);
+const stickyNav = function (entries) {
+  const [entry] = entries;
+  // console.log(entry);
+
+  if (!entry.isIntersecting) nav.classList.add('sticky');
+  else nav.classList.remove('sticky');
 };
 
-const observer = new IntersectionObserver(obsCallback, obsOptions);
-observer.observe(section1);
+const headerObserver = new IntersectionObserver(stickyNav, {
+  root: null,
+  threshold: 0,
+  rootMargin: `-${navHeight}px`, //is very important
+}); //ketu krijuam observer tone,ku kete here jam duke e quajtur headerObserver
+
+headerObserver.observe(header);
+//How to calculate this height dynamically???
+//Do perdorim funksionin getBoundingClientRect sepse për shembull, nëse keni një web responsive, atëherë me siguri madhësia e të gjithë elementëve do të ndryshojë në pika të caktuara
+
+//////////////////////////////////////// REVEALING ELEMENTS ON SCROLL ////////////////////////////////////////
+//Kemi 4 section dhe kemi klasen section--hidden , do aplikojme kete klase ne te 4 section
+// nga keshtu: <section class="section" id="section--1">
+//do behet keshtu: <section class="section section--hidden" id="section--1">
+// dhe nuk do shfaqet asgje pervac nav bar dhe h1
+//// SI DO TI REMOVE KETE KLASE KUR TI BEJME SCROOL ////
+//// do na vije ne ndiihme REVEAL SECTIONS //////////
+
+const allSections = document.querySelectorAll('.section');
+const revealSection = function (entries, observer) {
+  const [entry] = entries;
+  console.log(entry);
+  if (entry.isIntersecting) return;
+  entry.target.classList.remove('section--hidden');
+  observer.unobserve(entry.target);
+};
+const sectionObserver = new IntersectionObserver(revealSection, {
+  root: null,
+  threshold: 0.15,
+});
+allSections.forEach(function (section) {
+  sectionObserver.observe(section);
+  // section.classList.add('section--hidden');
+});
+
+////////////////////////////////////   LAZY LOADING IMAGES ////////////////////////////////////
+const imgTargets = document.querySelectorAll('img[data-src]');
+// console.log(imgTargets);
+const loadImg = function (entries, observer) {
+  const [entry] = entries;
+  console.log(entry);
+
+  if (!entry.isIntersecting) return;
+
+  //Replace src with data-src
+  entry.target.src = entry.target.dataset.src;
+  entry.target.classList.remove('lazy-img');
+
+  entry.target.addEventListener('load', function () {});
+};
+
+const imgObserver = new IntersectionObserver(loadImg, {
+  root: null,
+  threshold: 0,
+  rootMargin: '200px',
+});
+
+imgTargets.forEach(img => imgObserver.observe(img));
+
+//////////////////////////////// SLIDER ////////////////////////////////
+/*
+const slides = document.querySelectorAll('.slide');
+const btnLeft = document.querySelector('.slider__btn--left');
+const btnRight = document.querySelector('.slider__btn--right');
+let curSlide = 0;
+const maxSlide = slides.length;
+
+const slider = document.querySelector('.slider');
+slider.style.transform = 'scale(0.4) translateX(-800px';
+slider.style.overflow = 'visible';
+slides.forEach((s, i) => (s.style.transform = `translateX(${100 * i}%)`));
+// 0%, 100%, 200%, 300%
+
+//Next slide
+btnRight.addEventListener('click', function () {
+  if (curSlide === maxSlide - 1) {
+    curSlide = 0;
+  } else {
+    curSlide++;
+  }
+
+  slides.forEach(
+    (s, i) => (s.style.transform = `translateX(${100 * (i - curSlide)}%)`)
+  );
+});
+// curSlide = 1: -100%, 0%, 100%, 200%
+*/
+
+//// HOW TO REFACTOR  THIS CODE (SLIDE)////
+const slides = document.querySelectorAll('.slide');
+const btnLeft = document.querySelector('.slider__btn--left');
+const btnRight = document.querySelector('.slider__btn--right');
+let curSlide = 0;
+const maxSlide = slides.length;
+
+// const slider = document.querySelector('.slider');
+// slider.style.transform = 'scale(0.4) translateX(-800px';
+// slider.style.overflow = 'visible';
+
+const goToSlide = function (slide) {
+  slides.forEach(
+    (s, i) => (s.style.transform = `translateX(${100 * (i - slide)}%)`)
+  );
+};
+goToSlide(0);
+
+//Next slide
+const nextSlide = function () {
+  if (curSlide === maxSlide - 1) {
+    curSlide = 0;
+  } else {
+    curSlide++;
+  }
+  goToSlide(curSlide);
+};
+//Prev Slide
+const prevSlide = function () {
+  if (curSlide === 0) {
+    curSlide = maxSlide - 1;
+  } else {
+    curSlide--;
+  }
+  goToSlide(curSlide);
+};
+btnRight.addEventListener('click', nextSlide);
+btnLeft.addEventListener('click', prevSlide);
 
 //OUTPUTI KUR KLIKOJME SECILIN BUTON:
 /*
