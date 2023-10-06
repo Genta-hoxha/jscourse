@@ -112,7 +112,35 @@ EXAMPLE:
 */
 
 //Krijojme nje constructor function per nje person (construction function fillon gjithmone me shkronje te madhe)
-const Person = function (firstName, birthYear) {};
+const Person = function (firstName, birthYear) {
+  //Instance properties
+  this.firstName = firstName;
+  this.birthYear = birthYear;
+
+  //   //NEVER TO THIS (sepse imagjino sikur do te krijojme qindra ose mijera of person objects using constructor function  do kishim mijra kopje te ketij funksioni, e cila do ishte e tmerrshme per kodin)
+  //   this.calcAge = function () {
+  //     console.log(2023 - birthYear);
+  //   };
+
+  // QE TE SOLVE PROBLEM DO PERDORIM PROTOTYPES AND PROTOTYPE INHERITANCE
+};
 //therrasim funksionin
-//e vetemja diference midis regular function dhe constructor function eshte se ne e therrasim constructor function  duke perdorun parashtesen new para
-new Person('Genta', 1996);
+//e vetmja diference midis regular function dhe constructor function eshte se ne e therrasim constructor function  duke perdorun parashtesen new para
+const genta = new Person('Genta', 1996);
+console.log(genta);
+// Operatori new eshte operator special sepse ben te mundur thirrjen e funksionit por ben me shume se kaq
+//1. New empty object {} is created
+//2. Function is called, this = {}
+//3. {} linked to prototype
+//4. Function automatically return {}
+
+const ana = new Person('Ana', 1998);
+const florida = new Person('Florida', 1999);
+console.log(ana, florida); //output: Person {firstName: 'Ana', birthYear: 1998} Object Person {firstName: 'Florida', birthYear: 1999}
+
+// output: true
+console.log(ana instanceof Person);
+
+//nese e bej keshtu do kemi si output: false
+const jack = 'Jack';
+console.log(jack instanceof Person);
