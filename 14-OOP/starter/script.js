@@ -620,7 +620,7 @@ audi.brake();
 console.log(`Pika 2: ${audi.make} is going at ${audi.speedUS} mi/h`);
 console.log(`Pika 3: ${audi.make} is going at ${audi.speed} km/h`);
 */
-
+/*
 /////////////////////// Inheritance Between "Classes": Constructor Functions /////////////////////////////////////////
 const Person = function (firstName, birthYear) {
   this.firstName = firstName;
@@ -647,6 +647,8 @@ const Student = function (firstName, birthYear, course) {
   this.course = course;
 };
 
+Student.prototype = Object.create(Person.prototype);
+// Student.prototype = Person.prototype;
 //shtojme nje metode pasi kemi krijuar studentin genta
 Student.prototype.introduce = function () {
   //emri i funksionit eshte introduce
@@ -657,3 +659,382 @@ Student.prototype.introduce = function () {
 const genta = new Student('Genta', 1996, 'Java Script');
 console.log(genta);
 genta.introduce(); //thirjja e funksionit
+genta.calcAge();
+console.log(genta.__proto__);
+console.log(genta.__proto__.__proto__);
+
+console.log(genta instanceof Student); //output: true
+console.log(genta instanceof Person); //output: true
+console.log(genta instanceof Object); //output: true
+
+Student.prototype.constructor = Student;
+console.dir(Student.prototype.constructor);
+*/
+
+// Challenge 3
+
+/* 
+1. Use a constructor function to implement an Electric Car (called EV) as a CHILD "class" of Car. Besides a make and current speed, 
+the EV also has the current battery charge in % ('charge' property);
+2. Implement a 'chargeBattery' method which takes an argument 'chargeTo' and sets the battery charge to 'chargeTo';
+3. Implement an 'accelerate' method that will increase the car's speed by 20, and decrease the charge by 1%. Then log a message like this:
+ 'Tesla going at 140 km/h, with a charge of 22%';at happens when
+4. Create an electric car object and experiment with calling 'accelerate', 'brake' and 'chargeBattery' (charge to 90%). 
+Notice wh you 'accelerate'! HINT: Review the definiton of polymorphism 😉
+
+DATA CAR 1: 'Tesla' going at 120 km/h, with a charge of 23%
+
+GOOD LUCK 😀
+*/
+/*
+console.log('--- PIKA 1 ---');
+const Car = function (make, speed) {
+  //Supozohet si klasa parent si Person
+  this.make = make;
+  this.speed = speed;
+};
+
+Car.prototype.accelerate = function () {
+  this.speed += 30;
+  console.log(`${this.make} is going at ${this.speed} km/h`);
+};
+
+Car.prototype.brake = function () {
+  this.speed -= 15;
+  console.log(`${this.make} is going at ${this.speed} km/h`);
+};
+
+const EV = function (make, speed, charge) {
+  //Supozohet si klasa child si Student
+  Car.call(this, make, speed);
+  this.charge = charge;
+};
+
+EV.prototype = Object.create(Car.prototype);
+
+// EV.prototype.electricCar = function () {
+//   console.log(
+//     ` ${this.make} going at ${this.speed} km/h, with a charge of ${this.charge}% `
+//   );
+// };
+
+EV.prototype.chargeBattery = function (chargeTo) {
+  this.charge = chargeTo;
+};
+
+EV.prototype.accelerate = function () {
+  this.speed += 20;
+  this.charge--;
+  console.log(
+    `${this.make} is going at ${this.speed} km/h, with a charge of ${this.charge} % `
+  );
+};
+//     set chargeBattery(chargeTo) {
+//     this.charge = chargeTo
+// }
+const tesla = new EV('Tesla', 120, 23);
+tesla.chargeBattery(90);
+console.log(tesla);
+tesla.brake();
+tesla.accelerate();
+*/
+
+/*
+/////////////////////////////////  Inheritance Between "Classes": ES6 Classes ///////////////////////////////////
+
+class Person1 {
+  constructor(fullName, birthYear) {
+    //Instance properties
+    this.fullName = fullName;
+    this.birthYear = birthYear;
+  }
+  // Methods will be added to .prototype property
+  calcAge1() {
+    console.log(2023 - this.birthYear);
+  }
+  greet1() {
+    console.log(`Hey ${this.firstName}`);
+  }
+  get age() {
+    return 2023 - this.birthYear;
+  }
+
+  //Set a property that already exists
+  set fullName(name) {
+    console.log(name);
+    if (name.includes(' ')) this._fullName = name;
+    else alert(`${name} is not a full name!`);
+  }
+
+  //How to fix qe ne console kur klikojme psh genu.fullName te dali emer dhe mbiemer, pasi si genu._fullName njihet (pra te njihet per te dyja versionet)
+  get fullName() {
+    return this._fullName;
+  }
+
+  //Static method
+  static hey = function () {
+    console.log('Hey there');
+  };
+}
+//Te implementosh trashegimine midis klasave ESXi  na nevojiten 2 ingrediente: extends dhe super
+class Student1 extends Person1 {
+  constructor(fullName, birthYear, course) {
+    // me perpara benim kete gje duke e thirrur me metoden call Person1.call()
+    //ndersa tani do e bejme me super
+    super(fullName, birthYear); //sepse keto dy parametra kemi te constructor Person1. Gjithmone duhet te ndodhe ne fillim
+    this.course = course;
+  }
+
+  introduce() {
+    console.log(`My name is ${this.fullName} and I study ${this.course}`);
+  }
+
+  calcAge1() {
+    console.log(
+      `I'm ${
+        2023 - this.birthYear
+      } years old, but as a student I feel more like ${
+        2023 - this.birthYear + 10
+      }`
+    );
+  }
+}
+
+// const marta = new Student1('Marta Smith', 2000);
+const marta = new Student1('Marta Smith', 2000, 'Computer Science');
+marta.introduce();
+marta.calcAge1();
+*/
+/*
+/////////////////////////////////  Inheritance Between "Classes": Object.create ///////////////////////////////////
+const PersonProto = {
+  calcAge() {
+    console.log(2023 - this.birthYear);
+  },
+  init(firstName, birthYear) {
+    this.firstName = firstName;
+    this.birthYear = birthYear;
+  },
+};
+
+const steven = Object.create(PersonProto);
+
+const StudentProto = Object.create(PersonProto);
+StudentProto.init = function (firstName, birthYear, course) {
+  PersonProto.init.call(this, firstName, birthYear);
+  this.course = course;
+};
+
+StudentProto.introduce = function () {
+  console.log(`My name is ${this.firstName} and I study ${this.course}`);
+};
+
+const jay = Object.create(StudentProto);
+jay.init('Jay', 2001, 'Computer Science');
+jay.introduce();
+jay.calcAge();
+*/
+
+/*
+//////////////////////////////// ANOTHER CLASS EXAMPLE /////////////////////////////////
+class Acoount {
+  //   constructor(owner, currency, pin, movements) {
+  constructor(owner, currency, pin) {
+    //nuk na nevojitet movements si parameter por e bejme me poshte
+    this.owner = owner;
+    this.currency = currency;
+    this.pin = pin;
+    // this.movements = movements;
+    this.movements = [];
+    this.locale = navigator.language;
+
+    console.log(`Thanks for opening an account, ${owner}`);
+  }
+
+  // le te krijojme depozitimin
+  deposit(val) {
+    this.movements.push(val);
+  }
+
+  // le te krijojme terheqjen
+  withdraw(val) {
+    this.deposit(-val);
+  }
+
+  approveLoan(val) {
+    return true;
+  }
+  requestLoan(val) {
+    if (this.approveLoan(val)) {
+      this.deposit(val);
+      console.log(`Loan approved`);
+    }
+  }
+}
+
+//krijimi i nje accounti te ri me emrin acc1
+// const acc1 = new Acoount('Jonas', 'EUR', 1111, []);
+const acc1 = new Acoount('Jonas', 'EUR', 1111);
+// console.log(acc1);
+
+// acc1.movements.push(250);
+// acc1.movements.push(-140);
+
+acc1.deposit(350);
+acc1.withdraw(150);
+acc1.requestLoan(1000);
+acc1.approveLoan(1000);
+console.log(acc1); //output: Acoount {owner: 'Jonas', currency: 'EUR', pin: 1111, movements: Array(2), locale: 'en-US'}
+console.log(acc1.pin); //afishohet pini jashte klases
+*/
+/*
+class Account {
+  // 1. PUBLIC FIELDS
+  locale = navigator.language;
+
+  // 2. PRIVATE FIELDS
+  #movements = [];
+  #pin;
+  constructor(owner, currency, pin) {
+    this.owner = owner;
+    this.currency = currency;
+    this.#pin = pin;
+    console.log('THANK YOU!');
+  }
+
+  // le te krijojme depozitimin
+  deposit(val) {
+    this.#movements.push(val);
+    return this;
+  }
+
+  // le te krijojme terheqjen
+  withdraw(val) {
+    this.deposit(-val);
+    return this;
+  }
+  getMovements() {
+    return this.#movements;
+  }
+  requestLoan(val) {
+    if (this.#approveLoan(val)) {
+      this.deposit(val);
+      console.log('Loan approved');
+      return this;
+    }
+  }
+  // 4. PRVATE METHODS
+  #approveLoan(val) {
+    return true;
+  }
+
+  // 5. STATIC METHODS
+  static helper() {
+    console.log('Helper');
+  }
+}
+const acc1 = new Account('Jonas', 'EUR', 1111);
+
+console.log(acc1);
+acc1.requestLoan(1000);
+// console.log(acc1.#pin);
+// console.log(acc1.#movements);
+Account.helper();
+
+/////// CHAINING METHODS ///////////
+acc1.deposit(300).deposit(500).withdraw(35).requestLoan(25000).withdraw(4000);
+console.log(acc1.getMovements()); // output:[1000, 300, 500, -35, 25000, -4000]
+*/
+
+//////////////////////////////// CHALLENGE 4 /////////////////////////////
+
+/* 
+1. Re-create challenge #3, but this time using ES6 classes: create an 'EVCl' child class of the 'CarCl' class
+2. Make the 'charge' property private;
+3. Implement the ability to chain the 'accelerate' and 'chargeBattery' methods of this class, 
+and also update the 'brake' method in the 'CarCl' class. They experiment with chining!
+
+DATA CAR 1: 'Rivian' going at 120 km/h, with a charge of 23%
+
+GOOD LUCK 😀
+*/
+class CarCl {
+  constructor(make, speed) {
+    this.make = make;
+    this.speed = speed;
+  }
+}
+class EVCl extends CarCl {
+  #charge;
+  constructor(make, speed, charge) {
+    super(make, speed);
+    this.#charge = charge;
+  }
+  accelerate() {
+    this.speed += 10;
+
+    console.log(
+      `${this.make} is going at ${this.speed} km/h with charge ${this.#charge}%`
+    );
+    return this;
+  }
+  getSpeed() {
+    return this.speed;
+  }
+  brake() {
+    this.speed -= 5;
+    console.log(
+      `${this.make} is going at ${this.speed} km/h with charge ${this.#charge}%`
+    );
+    return this;
+  }
+
+  getchargeBattery() {
+    return this.#charge;
+  }
+
+  setchargeBattery(chargeTo) {
+    this.#charge = chargeTo;
+  }
+}
+
+const rivian = new EVCl('Rivian', 120, 23);
+
+console.log(rivian);
+// rivian.accelerate();
+// rivian.brake();
+
+rivian.accelerate(130).accelerate(150).brake(90).brake(85);
+console.log(rivian.getchargeBattery());
+/*
+
+
+
+EV.prototype = Object.create(Car.prototype);
+
+// EV.prototype.electricCar = function () {
+//   console.log(
+//     ` ${this.make} going at ${this.speed} km/h, with a charge of ${this.charge}% `
+//   );
+// };
+
+EV.prototype.chargeBattery = function (chargeTo) {
+  this.charge = chargeTo;
+};
+
+EV.prototype.accelerate = function () {
+  this.speed += 20;
+  this.charge--;
+  console.log(
+    `${this.make} is going at ${this.speed} km/h, with a charge of ${this.charge} % `
+  );
+};
+//     set chargeBattery(chargeTo) {
+//     this.charge = chargeTo
+// }
+const tesla = new EV('Tesla', 120, 23);
+tesla.chargeBattery(90);
+console.log(tesla);
+tesla.brake();
+tesla.accelerate();
+*/
