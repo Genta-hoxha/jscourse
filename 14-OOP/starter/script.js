@@ -958,83 +958,71 @@ DATA CAR 1: 'Rivian' going at 120 km/h, with a charge of 23%
 
 GOOD LUCK 😀
 */
+/*
 class CarCl {
   constructor(make, speed) {
     this.make = make;
     this.speed = speed;
   }
+  accelerate() {
+    this.speed += 10;
+    console.log(`${this.make} is going at ${this.speed} km/h`);
+  }
+
+  brake() {
+    this.speed -= 5;
+    console.log(`${this.make} is going at ${this.speed} km/h`);
+    return this;
+  }
+
+  get speedUS() {
+    return this.speed / 1.6;
+  }
+
+  set speedUS(speed) {
+    this.speed = speed * 1.6;
+  }
 }
 class EVCl extends CarCl {
   #charge;
+
   constructor(make, speed, charge) {
     super(make, speed);
     this.#charge = charge;
   }
-  accelerate() {
-    this.speed += 10;
-
-    console.log(
-      `${this.make} is going at ${this.speed} km/h with charge ${this.#charge}%`
-    );
-    return this;
-  }
-  getSpeed() {
-    return this.speed;
-  }
-  brake() {
-    this.speed -= 5;
-    console.log(
-      `${this.make} is going at ${this.speed} km/h with charge ${this.#charge}%`
-    );
-    return this;
-  }
-
-  getchargeBattery() {
-    return this.#charge;
-  }
-
-  setchargeBattery(chargeTo) {
+  chargeBattery(chargeTo) {
     this.#charge = chargeTo;
+    return this;
   }
+  accelerate() {
+    this.speed += 20;
+    this.#charge--;
+    console.log(
+      `${this.make} is going at ${this.speed} km/h with charge ${this.#charge}%`
+    );
+    return this;
+  }
+
+  //   brake() {
+  //     this.speed -= 10;
+  //     console.log(
+  //       `${this.make} is going at ${this.speed} km/h with charge ${this.#charge}%`
+  //     );
+  //     return this;
+  //   }
 }
 
 const rivian = new EVCl('Rivian', 120, 23);
 
 console.log(rivian);
-// rivian.accelerate();
-// rivian.brake();
 
-rivian.accelerate(130).accelerate(150).brake(90).brake(85);
-console.log(rivian.getchargeBattery());
-/*
-
-
-
-EV.prototype = Object.create(Car.prototype);
-
-// EV.prototype.electricCar = function () {
-//   console.log(
-//     ` ${this.make} going at ${this.speed} km/h, with a charge of ${this.charge}% `
-//   );
-// };
-
-EV.prototype.chargeBattery = function (chargeTo) {
-  this.charge = chargeTo;
-};
-
-EV.prototype.accelerate = function () {
-  this.speed += 20;
-  this.charge--;
-  console.log(
-    `${this.make} is going at ${this.speed} km/h, with a charge of ${this.charge} % `
-  );
-};
-//     set chargeBattery(chargeTo) {
-//     this.charge = chargeTo
-// }
-const tesla = new EV('Tesla', 120, 23);
-tesla.chargeBattery(90);
-console.log(tesla);
-tesla.brake();
-tesla.accelerate();
+rivian.accelerate();
+rivian.brake();
+rivian
+  .accelerate()
+  .accelerate()
+  .accelerate()
+  .brake()
+  .chargeBattery(50)
+  .accelerate();
 */
