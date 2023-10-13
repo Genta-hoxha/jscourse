@@ -401,3 +401,6 @@ if (navigator.geolocation)
   );
 // Leaflet an open-source JavaScript library for mobile-friendly interactive maps, duhet ta download ne pc
 */
+
+const arr1 = [2, 20, 3, 6, 4, 5];
+arr1.filter(arr => arr % 2 === 0).forEach(arr => console.log(arr));
