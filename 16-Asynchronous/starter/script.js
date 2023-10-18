@@ -392,12 +392,286 @@ whereAmI(33.933, 18.474);
 */
 
 ///////////////////////////////////////////// THE EVENT LOOP IN PRACTICE /////////////////////////////////////
+
+/*
+/// Example 1
+(() => {
+  console.log('this is the start');
+
+  setTimeout(() => {
+    console.log('Callback 1: this is a msg from call back');
+  }); // has a default time value of 0
+
+  console.log('this is just a message');
+
+  setTimeout(() => {
+    console.log('Callback 2: this is a msg from call back');
+  }, 1200);
+
+  console.log('this is the end');
+})();
+// OUTPUT:
+// "this is the start"
+// "this is just a message"
+// "this is the end"
+// "Callback 1: this is a msg from call back"
+// "Callback 2: this is a msg from call back"
+*/
+
+/*
+/// Example 2
+const seconds = new Date().getTime() / 1000;
+
+setTimeout(() => {
+  // prints out "2", meaning that the callback is not called immediately after 500 milliseconds.
+  console.log(`Ran after ${new Date().getTime() / 1000 - seconds} seconds`);
+}, 500);
+
+while (true) {
+  if (new Date().getTime() / 1000 - seconds >= 2) {
+    console.log('Good, looped for 2 seconds');
+    break;
+  }
+}
+//OUTPUT: SHfaqen te dyja njekohesisht
+// Good, looped for 2 seconds
+// Ran after 2.003000020980835 seconds
+*/
+
+/*
+///Example 3 kur po punojme ne te njejten kohe me promise , kryesisht micro-tasks dhe me timers pra setTimeout
 console.log('Test start');
 setTimeout(() => console.log('0 sec timer'), 0);
 Promise.resolve('Resolved promise 1').then(res => console.log(res));
 
 Promise.resolve('Resolved promise 2').then(res => {
-  for (let i = 0; i < 10000000000000000000000000000000; i++) {}
+  for (let i = 0; i < 100000; i++) {}
   console.log(res);
 });
 console.log('Test end');
+
+//OUTPUT
+// Test start
+// Test end
+// Resolved promise 1
+// Resolved promise 2
+// 0 sec timer (PRA EKZEKUTOHET E FUNDIT DHE vlera 0 qe kemi vendosur pas setTimeout nuk ka vlere nese do kemi ne te njejten kohe dhe micro-tasks ku kemi thene qe promise.resolve menjehere)
+*/
+
+///Example 1 - Krijimi i new promise duke perdorur the promise constructor
+/*
+//Example 1.1
+const lotteryPromise = new Promise(function (resolve, reject) {
+  if (Math.random() >= 0.5) {
+    resolve('You WIN !'); // e imagjinojme resolve si funksion pranimi
+  } else {
+    reject('You LOST your money!'); // e imagjinojme reject si funksion refuzimi
+  }
+});
+
+lotteryPromise.then(res => console.log(res)).catch(err => console.error(err)); //si fillim do na afishehet You WIN , me pas sa here i ben refresh faqes ne menyre random duhet te dali dhe mesazhi You LOST your money!
+*/
+/*
+//Example 1.2
+
+const lotteryPromise = new Promise(function (resolve, reject) {
+  console.log('Lottery draw is happening');
+  setTimeout(function () {
+    if (Math.random() >= 0.5) {
+      resolve('You WIN !'); // e imagjinojme resolve si funksion pranimi
+    } else {
+      reject(new Error('You LOST your money!')); // e imagjinojme reject si funksion refuzimi
+    }
+  }, 2000);
+});
+
+lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+//output:  Error: You LOST your money!
+
+// Promisingfying setTimout creating a wait function
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+
+wait(1)
+  .then(() => {
+    console.log('1 second passed');
+    return wait(1); //pra do afishohet pas 1 sekondi pasi te jete afishuar I waited for 2 seconds
+  })
+
+  .then(() => {
+    console.log('2 second passed');
+    return wait(1); //pra do afishohet pas 1 sekondi pasi te jete afishuar I waited for 2 seconds
+  })
+
+  .then(() => {
+    console.log('3 second passed');
+    return wait(1); //pra do afishohet pas 1 sekondi pasi te jete afishuar I waited for 2 seconds
+  })
+
+  .then(() => {
+    console.log('4 second passed');
+    return wait(1); //pra do afishohet pas 1 sekondi pasi te jete afishuar I waited for 2 seconds
+  });
+
+Promise.resolve('abc').then(x => console.log(x));
+Promise.reject('abc').catch(x => console.error(x));
+*/
+
+/*
+/////////////////////////// PROMISIFYING THE GEOLOCATION API /////////////////////////
+const btn = document.querySelector('.btn-country');
+const countriesContainer = document.querySelector('.countries');
+console.log('Getting position');
+// navigator.geolocation.getCurrentPosition(
+//   position => console.log(position),
+//   err => console.error(err)
+// );  kte e vendosim poshte dhe bejme disa editime ku ne vend te console.log vendosim resolve dhe ne vend te console.error vendosim reject
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(
+      position => resolve(position),
+      err => reject(err)
+    );
+    // navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+// getPosition().then(pos => console.log(pos));
+
+const whereAmI = function () {
+  getPosition()
+    .then(pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+    })
+    .then(response => {
+      if (!response.ok)
+        throw new Error(`Problem with geocoding ${response.status}`);
+      return response.json();
+    })
+    .then(data => {
+      console.log(data);
+      console.log(`You are in ${data.city}, ${data.country}`);
+
+      return fetch(`https://restcountries.com/v3.1/name/${data.country}`);
+    })
+    .then(response => {
+      if (!response.ok)
+        throw new Error(`Country not found (${response.status})`);
+
+      return response.json();
+    })
+    .then(data => renderCountry(data[0]))
+    .catch(err => console.error(`${err.message} 💥`));
+};
+
+btn.addEventListener('click', whereAmI);
+*/
+
+// Challenge 2
+
+/* 
+Build the image loading functionality that I just showed you on the screen.
+
+Tasks are not super-descriptive this time, so that you can figure out some stuff on your own. Pretend you're working on your own 😉
+
+PART 1
+1. Create a function 'createImage' which receives imgPath as an input. This function returns a promise which creates a new image 
+(use document.createElement('img')) and sets the .src attribute to the provided image path. When the image is done loading, 
+append it to the DOM element with the 'images' class, and resolve the promise. 
+The fulfilled value should be the image element itself. In case there is an error loading the image ('error' event), reject the promise.
+
+If this part is too tricky for you, just watch the first part of the solution.
+
+PART 2
+2. Comsume the promise using .then and also add an error handler;
+3. After the image has loaded, pause execution for 2 seconds using the wait function we created earlier;
+4. After the 2 seconds have passed, hide the current image (set display to 'none'), and load a second image (HINT: Use the image element returned by the createImage promise to hide the current image. You will need a global variable for that 😉);
+5. After the second image has loaded, pause execution for 2 seconds again;
+6. After the 2 seconds have passed, hide the current image.
+
+TEST DATA: Images in the img folder. Test the error handler by passing a wrong image path. Set the network speed to 'Fast 3G' in the dev tools Network tab, otherwise images load too fast.
+
+GOOD LUCK 😀
+*/
+/*
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+const imagesSelect = document.querySelector('.images'); //krijimi i nje konstanteje qe na tregon images te selektuara
+const createImage = function (imgPath) {
+  // krijimi i nje funksioni ku si input ka imgPath dhe do ktheje new Promise qe do kete resolve dhe reject sic i kemi bere me siper te examples
+  return new Promise(function (resolve, reject) {
+    const image = document.createElement('img'); // krijuam nje konstante me emrin image ku beme te mundur krijimin e elementit
+    image.src = imgPath; //kte konstante.src e barazuam me parametrin e funksionit pra me imgPath
+
+    image.addEventListener('load', function () {
+      //kete konstante.addEventlistener iu dhame n je event, ne kete rast load lu me pas konstanten e selektimit te klases se imageve e beme .append(image)
+      imagesSelect.append(image);
+      resolve(image);
+    });
+    image.addEventListener('error', function () {
+      reject(new Error('Upload an image please'));
+    });
+  });
+};
+
+let currentImg;
+createImage('img/img-3.jpg')
+  .then(img => {
+    currentImg = img;
+    console.log('Image1');
+    return wait(2);
+  })
+  .catch(err => console.error(err));
+
+  */
+
+const wait = function (second) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, second * 1000);
+  });
+};
+
+const imageSelect = document.querySelector('.images');
+const createImage = function (imgPath) {
+  return new Promise(function (resolve, reject) {
+    const image = document.createElement('img');
+    image.src = imgPath;
+
+    //krijimi i eventeve per load te images dhe per error
+    image.addEventListener('load', function () {
+      imageSelect.append(image);
+      resolve(image);
+    });
+
+    image.addEventListener('error', function () {
+      reject(new Error('ERROR: Upload an image!'));
+    });
+  });
+};
+
+let currentImage;
+createImage('img/img-1.jpg')
+  .then(img => {
+    currentImage = img;
+    console.log('Image 1 uploaded!');
+    return wait(1);
+  })
+  .then(img => {
+    currentImage = img;
+    console.log('Image 2 uploaded!');
+    return createImage('img/img-2.jpg');
+  })
+  .then(img => {
+    currentImage = img;
+    console.log('Image 3 uploaded!');
+    return createImage('img/img-3.jpg');
+  })
+  .catch(err => console.error(err));
+
+/////////////////////////// CONSUMING PROMISES WITH ASYNC/AWAIT  ///////////////////////////
