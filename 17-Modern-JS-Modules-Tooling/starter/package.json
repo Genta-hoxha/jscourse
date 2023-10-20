@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "core-js": "^3.33.1",
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21"
   },
