@@ -7,6 +7,7 @@ import 'regenerator-runtime/runtime';
 
 const recipeContainer = document.querySelector('.recipe');
 
+/*
 const timeout = function (s) {
   return new Promise(function (_, reject) {
     setTimeout(function () {
@@ -14,7 +15,7 @@ const timeout = function (s) {
     }, s * 1000);
   });
 };
-
+*/
 // https://forkify-api.herokuapp.com/v2
 
 ///////////////////////////////////////
@@ -35,13 +36,21 @@ const controlRecipes = async function () {
     //2. RENDERING RECIPE
     recipeView.render(model.state.recipe);
   } catch (err) {
-    alert(err);
+    console.log(err);
   }
 };
 
+/* do dergohet te recipeView.js
 ['hashchange', 'load'].forEach(ev =>
   window.addEventListener(ev, controlRecipes)
 );
+*/
+
+const init = function () {
+  recipeView.addHandlerRender(controlRecipes);
+};
+init();
+
 // eventi hashchange do te aktoivizohet # kur te ndryshojme url
 // controlRecipes();
 //ne kemi nje array ne te cilen cdo element do permbaje this markup
