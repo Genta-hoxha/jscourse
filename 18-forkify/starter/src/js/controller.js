@@ -1,30 +1,21 @@
 import * as model from './model.js';
 import recipeView from './views/recipeView.js';
+import searchView from './views/searchView.js';
+import resultsView from './views/resultsView.js';
+
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
+if (module.hot) {
+  module.hot.accept();
+}
 // console.log(icons); // e shikon ne console url dhe shiko nese korrespondon me emrin te file dist
-
-const recipeContainer = document.querySelector('.recipe');
-
-/*
-const timeout = function (s) {
-  return new Promise(function (_, reject) {
-    setTimeout(function () {
-      reject(new Error(`Request took too long! Timeout after ${s} second`));
-    }, s * 1000);
-  });
-};
-*/
-// https://forkify-api.herokuapp.com/v2
-
-///////////////////////////////////////
 
 // do kopjojme linkun qe morem te forkify-api te metodes GET dhe krijojme nje funksion async qe do e perdortin ne single wait . Ne dime qe fetch do return nje promise
 const controlRecipes = async function () {
   try {
     const id = window.location.hash.slice(1); // window.location kthen location e objektit me informacion rreth location te sakte te dokumentit ndersa location.hash qe do te thote ikona "#" para id
-    console.log(id);
+    // console.log(id);
 
     if (!id) return;
     recipeView.renderSpinner(); // nuk na nevojitet me parent element qe ne kete rast ishte recipeContainer
@@ -37,6 +28,7 @@ const controlRecipes = async function () {
     recipeView.render(model.state.recipe);
   } catch (err) {
     console.log(err);
+    recipeView.renderError();
   }
 };
 
@@ -46,8 +38,26 @@ const controlRecipes = async function () {
 );
 */
 
+const controlSearchResults = async function () {
+  try {
+    resultsView.renderSpinner();
+    //1. GET SEARCH QUERY
+    const query = searchView.getQuery();
+    if (!query) return;
+
+    //2. LOAD SEARCH RESULTS
+    await model.loadSearchResults(query);
+
+    //3. RENDER RESULTS
+    resultsView.render(model.state.search.results);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 const init = function () {
   recipeView.addHandlerRender(controlRecipes);
+  searchView.addHandlerSearch(controlSearchResults);
 };
 init();
 
