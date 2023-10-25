@@ -1,0 +1,167 @@
+```````````````````````````````````````````` paginationView.js`````````````````````````````````````````````````````
+
+import View from './View.js';
+import icons from 'url:../../img/icons.svg'; //Parcel 2   vendosen dy pika se eshte nenfolder
+
+class PaginationView extends View {
+  _parentElement = document.querySelector('.pagination');
+
+  addHandlerClick(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn--inline');
+      if (!btn) return;
+      const goToPage = +btn.dataset.goto;
+
+      handler(goToPage);
+    });
+  }
+  _generateMarkup() {
+    const curPage = this._data.page;
+    const numPages = Math.ceil(
+      this._data.results.length / this._data.resultsPerPage
+    );
+    console.log(numPages);
+    // Page 1 and there are other pages
+    if (curPage === 1 && numPages > 1) {
+      return `
+      <button data-goto="${
+        curPage + 1
+      }" class="btn--inline pagination__btn--next">
+      <span>Page ${curPage + 1}</span>
+      <svg class="search__icon">
+        <use href="${icons}#icon-arrow-right"></use>
+      </svg>
+    </button>`;
+    }
+
+    //Last page
+
+    if (curPage === numPages && numPages > 1) {
+      return `
+      <button data-goto="${
+        curPage - 1
+      }" class="btn--inline pagination__btn--prev">
+      <svg class="search__icon">
+        <use href="${icons}#icon-arrow-left"></use>
+      </svg>
+      <span>Page ${curPage - 1}</span>
+    </button>`;
+    }
+    // Other page
+    if (curPage < numPages) {
+      return `
+        <button data-goto="${
+          curPage - 1
+        }" class="btn--inline pagination__btn--prev">
+        <svg class="search__icon">
+          <use href="${icons}#icon-arrow-left"></use>
+        </svg>
+        <span>Page ${curPage - 1}</span>
+      </button>
+      
+      <button data-goto="${
+        curPage + 1
+      }" class="btn--inline pagination__btn--next">
+      <span>Page ${curPage + 1}</span>
+      <svg class="search__icon">
+        <use href="${icons}#icon-arrow-right"></use>
+      </svg>
+    </button>
+    `;
+    }
+
+    // Page 1 and there are NO other pages
+    return 'only 1 page';
+  }
+}
+
+export default new PaginationView();
+
+
+
+
+
+```````````````````````````````````````````````` controller.js`````````````````````````````````````````
+
+import * as model from './model.js';
+import recipeView from './views/recipeView.js';
+import searchView from './views/searchView.js';
+import resultsView from './views/resultsView.js';
+import paginationView from './views/paginationView.js';
+
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+
+// if (module.hot) {
+//   module.hot.accept();
+// }
+// console.log(icons); // e shikon ne console url dhe shiko nese korrespondon me emrin te file dist
+
+// do kopjojme linkun qe morem te forkify-api te metodes GET dhe krijojme nje funksion async qe do e perdortin ne single wait . Ne dime qe fetch do return nje promise
+const controlRecipes = async function () {
+  try {
+    const id = window.location.hash.slice(1); // window.location kthen location e objektit me informacion rreth location te sakte te dokumentit ndersa location.hash qe do te thote ikona "#" para id
+    // console.log(id);
+
+    if (!id) return;
+    recipeView.renderSpinner(); // nuk na nevojitet me parent element qe ne kete rast ishte recipeContainer
+
+    //1. lOADING RECIPE
+    await model.loadRecipe(id);
+    // const { recipe } = model.state; nuk na duhet me
+
+    //2. RENDERING RECIPE
+    recipeView.render(model.state.recipe);
+  } catch (err) {
+    console.log(err);
+    recipeView.renderError();
+  }
+};
+
+/* do dergohet te recipeView.js
+['hashchange', 'load'].forEach(ev =>
+  window.addEventListener(ev, controlRecipes)
+);
+*/
+
+const controlSearchResults = async function () {
+  try {
+    resultsView.renderSpinner();
+    //1. GET SEARCH QUERY
+    const query = searchView.getQuery();
+    if (!query) return;
+
+    //2. LOAD SEARCH RESULTS
+    await model.loadSearchResults(query);
+
+    //3. RENDER RESULTS
+    // resultsView.render(model.state.search.results);
+    resultsView.render(model.getSearchResultsPage(3));
+
+    // 4. RENDER INITIAL PAGINATION BUTTON
+    paginationView.render(model.state.search);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const controlPagination = function (goToPage) {
+  //1. RENDER NEW RESULTS
+  resultsView.render(model.getSearchResultsPage(goToPage));
+
+  // 2. RENDER NEW PAGINATION BUTTON
+  paginationView.render(model.state.search);
+};
+
+const init = function () {
+  recipeView.addHandlerRender(controlRecipes);
+  searchView.addHandlerSearch(controlSearchResults);
+  paginationView.addHandlerClick(controlPagination);
+};
+init();
+
+// eventi hashchange do te aktoivizohet # kur te ndryshojme url
+// controlRecipes();
+//ne kemi nje array ne te cilen cdo element do permbaje this markup
+// window.addEventListener('hashchange', controlRecipes);
+// window.addEventListener('load', controlRecipes);

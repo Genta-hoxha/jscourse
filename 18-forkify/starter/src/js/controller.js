@@ -21,6 +21,9 @@ const controlRecipes = async function () {
     if (!id) return;
     recipeView.renderSpinner(); // nuk na nevojitet me parent element qe ne kete rast ishte recipeContainer
 
+    // 0. Update results view to mark selected search result
+    resultsView.update(model.getSearchResultsPage());
+
     //1. lOADING RECIPE
     await model.loadRecipe(id);
     // const { recipe } = model.state; nuk na duhet me
@@ -68,10 +71,22 @@ const controlPagination = function (goToPage) {
   paginationView.render(model.state.search);
 };
 
+//Per project planning II dhe per update recipe servings duhet qe te shtojme nje kontroller si me poshte: dhe do ekzekutohet kur te klikojme decrease ose increase the servings
+const controlServings = function (newServings) {
+  // Update the recipe servings (in state)
+  model.updateServings(newServings);
+
+  // Update the recipe view
+  // recipeView.render(model.state.recipe);
+  recipeView.update(model.state.recipe);
+};
+
 const init = function () {
   recipeView.addHandlerRender(controlRecipes);
+  recipeView.addHandlerUpdateServings(controlServings);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPagination);
+  controlServings();
 };
 init();
 
